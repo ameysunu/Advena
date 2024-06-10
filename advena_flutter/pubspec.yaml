@@ -78,6 +78,11 @@ flutter:
     - family: NeueHaas-Medium
       fonts:
         - asset: assets/fonts/Neue_Haas_Medium.otf
+
+    - family: NeueHaas-Light
+      fonts:
+        - asset: assets/fonts/NeueHaasDisplayLight.ttf
+
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

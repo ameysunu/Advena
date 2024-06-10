@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import 'views/login.dart';
 
 void main() {
   runApp(const MainScreen());
@@ -16,7 +19,9 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(body: SafeArea(child: Text('Hi there! Welcome to Advena', style: TextStyle(fontFamily: 'NeueHaas-Medium', fontSize: 25),))),
+        home: Scaffold(body: SafeArea(child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Login()))),
       );
   }
 }
