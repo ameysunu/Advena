@@ -18,10 +18,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(body: SafeArea(child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Login()))),
-      );
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(body: SafeArea(child: Login())),
+    );
   }
 }
