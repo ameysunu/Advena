@@ -1,4 +1,4 @@
-package com.example.advena_flutter
+package me.amey.advena
 
 import io.flutter.embedding.android.FlutterActivity
 

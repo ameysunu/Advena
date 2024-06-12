@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1088509938140",
+    "project_id": "ios-project-11c34",
+    "storage_bucket": "ios-project-11c34.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088509938140:android:4b9a9bb4778e70a5556719",
+        "android_client_info": {
+          "package_name": "me.amey.advena"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088509938140-qc6osarfaaqapp2s2bk3cspa55c95d2f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFlgnGVxHiKPaP5KfheVmLZNewQ4UlYi8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088509938140-8dvfh0jpbl4uk1suv2m722c53qdv34u0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088509938140-3rlmnpvn1p1jal9405neau22h5915n8j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "me.amey.UnknownCaller"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

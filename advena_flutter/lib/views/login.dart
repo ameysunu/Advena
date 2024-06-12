@@ -1,3 +1,4 @@
+import 'package:advena_flutter/controllers/login.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:lottie/lottie.dart';
@@ -10,6 +11,10 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  LoginController loginController = LoginController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,10 +50,11 @@ class _LoginState extends State<Login> {
                         color: HexColor('#2B124C')),
                   ),
                   SizedBox(height: 35),
-                  SingleChildScrollView( ),
+                  SingleChildScrollView(),
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                       child: TextField(
+                        controller: emailController,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: "Email Address",
@@ -59,6 +65,7 @@ class _LoginState extends State<Login> {
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                       child: TextField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
@@ -72,8 +79,33 @@ class _LoginState extends State<Login> {
                       height: 50,
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Handle Google sign-in
+                        onPressed: () async {
+                          try {
+                            bool isLogin = await loginController.loginUser(
+                                emailController.text, passwordController.text);
+                            if (isLogin) {
+                              //Navigator.pushNamed(context, '/home');
+                              print("Yayy!");
+                            }
+                          } catch (e) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Login Error'),
+                                  content: Text(e.toString()),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                      child: Text('OK'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
