@@ -44,7 +44,62 @@ class _LoginState extends State<Login> {
                         fontSize: 20,
                         color: HexColor('#2B124C')),
                   ),
-                  Spacer(), // Pushes the button and footer to the bottom
+                  SizedBox(height: 35),
+                  SingleChildScrollView( ),
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                      child: TextField(
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Email Address",
+                            hintText: "test@test.ie",
+                            labelStyle:
+                                TextStyle(fontFamily: 'NeueHaas-Light')),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                      child: TextField(
+                        obscureText: true,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Password",
+                            labelStyle:
+                                TextStyle(fontFamily: 'NeueHaas-Light')),
+                      )),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Handle Google sign-in
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Login',
+                              style: TextStyle(
+                                  fontFamily: 'NeueHaas-Medium',
+                                  fontSize: 15,
+                                  color: HexColor('#190019')),
+                            ),
+                          ],
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: HexColor('#DFB6B2'),
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    thickness: 2,
+                    color: Colors.grey,
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: Container(
@@ -74,13 +129,16 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ),
-                  Center(
-                    child: Text(
-                      'Copyright 2024 Advena',
-                      style: TextStyle(
-                          fontFamily: 'NeueHaas-Light',
-                          fontSize: 20,
-                          color: HexColor('#2B124C')),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    child: Center(
+                      child: Text(
+                        'Don\'t have an account? Sign up.',
+                        style: TextStyle(
+                            fontFamily: 'NeueHaas-Light',
+                            fontSize: 20,
+                            color: HexColor('#854F6C')),
+                      ),
                     ),
                   ),
                 ],
