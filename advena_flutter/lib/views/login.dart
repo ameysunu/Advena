@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:lottie/lottie.dart';
 
+import 'home.dart';
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -86,10 +88,21 @@ class _LoginState extends State<Login> {
                             setState(() {
                               isLoading = true;
                             });
-                            bool isLogin = await loginController.loginUser(
-                                emailController.text, passwordController.text);
+
+                            List<dynamic> result =
+                                await loginController.loginUser(
+                                    emailController.text,
+                                    passwordController.text);
+                            bool isLogin = result[0];
+                            User user = result[1];
                             if (isLogin) {
-                              //Navigator.pushNamed(context, '/home');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(
+                                      body: SafeArea(child: Home(user: user))),
+                                ),
+                              );
                               print("Yayy!");
                             }
                           } catch (e) {
@@ -165,7 +178,12 @@ class _LoginState extends State<Login> {
                             User? user =
                                 await loginController.signInWithGoogle();
                             if (user != null) {
-                              //Navigator.pushNamed(context, '/home');
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(
+                                      body: SafeArea(child: Home(user: user))),
+                                ),
+                              );
                               print("Yayy!");
                             }
                           } catch (e) {

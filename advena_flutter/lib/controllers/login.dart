@@ -5,16 +5,17 @@ class LoginController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  Future<bool> loginUser(String email, String password) async {
+  Future<List<dynamic>> loginUser(String email, String password) async {
     try {
-      await FirebaseAuth.instance
+      UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      return true;
+      return [true, userCredential.user];
     } catch (e) {
       throw FirebaseAuthException(message: e.toString(), code: 'ERROR');
     }
   }
 
+// Always run keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore -storepass android -keypass android
   Future<User?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
