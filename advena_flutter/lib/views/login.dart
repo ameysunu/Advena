@@ -1,4 +1,5 @@
 import 'package:advena_flutter/controllers/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:lottie/lottie.dart';
@@ -125,8 +126,8 @@ class _LoginState extends State<Login> {
                         child: isLoading
                             ? CircularProgressIndicator(
                                 backgroundColor: Colors.grey,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(HexColor('#190019')),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    HexColor('#190019')),
                               )
                             : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -159,8 +160,40 @@ class _LoginState extends State<Login> {
                       height: 50,
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Handle Google sign-in
+                        onPressed: () async {
+                          try {
+                            User? user =
+                                await loginController.signInWithGoogle();
+                            if (user != null) {
+                              //Navigator.pushNamed(context, '/home');
+                              print("Yayy!");
+                            }
+                          } catch (e) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  backgroundColor: HexColor('#FBE4D8'),
+                                  title: Text(
+                                    'Login Error',
+                                    style: TextStyle(
+                                        fontFamily: 'NeueHaas-Medium'),
+                                  ),
+                                  content: Text(e.toString(),
+                                      style: TextStyle(
+                                          fontFamily: 'NeueHaas-Light')),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                      child: Text('OK'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
