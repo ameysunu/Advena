@@ -19,6 +19,9 @@ jobs:
           distribution: 'adopt'
           java-version: '12.x'
 
+      - name: Move to Flutter Directory
+        run: cd advena_flutter
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
