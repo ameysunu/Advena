@@ -33,7 +33,11 @@ jobs:
 
       - name: Prepare Firebase Options
         working-directory: advena_flutter
-        run: echo "$FIREBASE_OPTIONS" > lib/firebase_options.dart
+        run: | 
+          echo "$FIREBASE_OPTIONS" > lib/firebase_options.dart
+          cat $GITHUB_WORKSPACE/advena_flutter/firebase_options.dart 
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
 
       - name: List
         working-directory: advena_flutter
