@@ -14,6 +14,7 @@ class _LoginState extends State<Login> {
   LoginController loginController = LoginController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +82,9 @@ class _LoginState extends State<Login> {
                       child: ElevatedButton(
                         onPressed: () async {
                           try {
+                            setState(() {
+                              isLoading = true;
+                            });
                             bool isLogin = await loginController.loginUser(
                                 emailController.text, passwordController.text);
                             if (isLogin) {
@@ -92,8 +96,15 @@ class _LoginState extends State<Login> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  title: Text('Login Error'),
-                                  content: Text(e.toString()),
+                                  backgroundColor: HexColor('#FBE4D8'),
+                                  title: Text(
+                                    'Login Error',
+                                    style: TextStyle(
+                                        fontFamily: 'NeueHaas-Medium'),
+                                  ),
+                                  content: Text(e.toString(),
+                                      style: TextStyle(
+                                          fontFamily: 'NeueHaas-Light')),
                                   actions: <Widget>[
                                     ElevatedButton(
                                       child: Text('OK'),
@@ -105,20 +116,30 @@ class _LoginState extends State<Login> {
                                 );
                               },
                             );
+                          } finally {
+                            setState(() {
+                              isLoading = false;
+                            });
                           }
                         },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Login',
-                              style: TextStyle(
-                                  fontFamily: 'NeueHaas-Medium',
-                                  fontSize: 15,
-                                  color: HexColor('#190019')),
-                            ),
-                          ],
-                        ),
+                        child: isLoading
+                            ? CircularProgressIndicator(
+                                backgroundColor: Colors.grey,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(HexColor('#190019')),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Login',
+                                    style: TextStyle(
+                                        fontFamily: 'NeueHaas-Medium',
+                                        fontSize: 15,
+                                        color: HexColor('#190019')),
+                                  ),
+                                ],
+                              ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: HexColor('#DFB6B2'),
                           shape: RoundedRectangleBorder(
