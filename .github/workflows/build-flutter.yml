@@ -27,11 +27,8 @@ jobs:
       - name: Flutter pub get
         run: cd advena_flutter && flutter pub get
 
-      - name: List
-        run: ls
-
       - name: Prepare Firebase Options
-        run: echo "$FIREBASE_OPTIONS" > lib/firebase_options.dart
+        run: cd advena_flutter && echo "$FIREBASE_OPTIONS" > lib/firebase_options.dart
 
       - name: Build APK
         run: flutter build apk --release
