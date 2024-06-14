@@ -37,7 +37,7 @@ jobs:
 
       - name: List
         working-directory: advena_flutter
-        run: ls
+        run: cd lib && ls
 
       - name: Build APK
         working-directory: advena_flutter
