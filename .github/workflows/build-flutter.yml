@@ -31,4 +31,4 @@ jobs:
         run: cd advena_flutter && echo "$FIREBASE_OPTIONS" > lib/firebase_options.dart
 
       - name: Build APK
-        run: flutter build apk --release
+        run: cd advena_flutter && flutter build apk --release
