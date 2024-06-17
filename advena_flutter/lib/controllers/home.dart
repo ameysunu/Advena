@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 
 class HomeController {
   XFile? profileImage;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   List<dynamic> getGreetingMessage() {
     DateTime now = DateTime.now();
     int hour = now.hour;
@@ -27,13 +30,18 @@ class HomeController {
   }
 
   Future<void> updateDisplayName(
-      String displayName, Function(User) onUserUpdate) async {
+      String displayName, String dob, Function(User) onUserUpdate) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
       await user.updateProfile(displayName: displayName, photoURL: null);
       await user.reload();
       User? updatedUser = FirebaseAuth.instance.currentUser;
+
+      _firestore
+          .collection('appusers')
+          .doc(user.uid)
+          .set({'username': displayName, 'dob': dob}, SetOptions(merge: true));
       onUserUpdate(updatedUser!);
     }
   }
