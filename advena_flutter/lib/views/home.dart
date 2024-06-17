@@ -7,7 +7,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Home extends StatefulWidget {
-  final User? user;
+  User? user;
   Home({Key? key, this.user});
 
   @override
@@ -21,6 +21,7 @@ class _HomeState extends State<Home> {
   XFile? profileImage;
   String? greeting;
   bool? isDay;
+  bool isSubmitting = false;
 
   void initState() {
     super.initState();
@@ -35,19 +36,24 @@ class _HomeState extends State<Home> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "${greeting} ${widget.user?.displayName ?? 'Guest'}",
-            style: TextStyle(
-                fontFamily: 'NeueHaas-Medium',
-                fontSize: 17,
-                color: HexColor('#FFFFFF')),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pop(context);
-            },
-            child: const Text('Sign Out'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "${greeting} ${widget.user?.displayName ?? 'Guest'}",
+                style: TextStyle(
+                    fontFamily: 'NeueHaas-Medium',
+                    fontSize: 20,
+                    color: HexColor('#FFFFFF')),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pop(context);
+                },
+                child: const Text('Sign Out'),
+              ),
+            ],
           ),
           if (widget.user?.displayName == null)
             AlertDialog(
@@ -107,15 +113,26 @@ class _HomeState extends State<Home> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    print("GALANTIS");
+                    setState(() {
+                      isSubmitting = true;
+                    });
+                    _homeController
+                        .updateDisplayName(displayNameController.text, (user) {
+                      setState(() {
+                        isSubmitting = false;
+                        widget.user = user;
+                      });
+                    });
                   },
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(fontFamily: 'NeueHaas-Medium'),
-                  ),
+                  child: isSubmitting
+                      ? CircularProgressIndicator()
+                      : Text(
+                          'Submit',
+                          style: TextStyle(fontFamily: 'NeueHaas-Medium'),
+                        ),
                 ),
               ],
-            ),
+            )
         ],
       ),
     );

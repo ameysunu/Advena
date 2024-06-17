@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 
 class HomeController {
@@ -22,6 +23,18 @@ class HomeController {
     if (image != null) {
       profileImage = image;
       onImagePicked(image);
+    }
+  }
+
+  Future<void> updateDisplayName(
+      String displayName, Function(User) onUserUpdate) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      await user.updateProfile(displayName: displayName, photoURL: null);
+      await user.reload();
+      User? updatedUser = FirebaseAuth.instance.currentUser;
+      onUserUpdate(updatedUser!);
     }
   }
 }
