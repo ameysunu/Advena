@@ -15,15 +15,13 @@ class HomeController {
     }
   }
 
-  Future<XFile?> pickImage() async {
-  final ImagePicker _picker = ImagePicker();
-  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  Future<void> pickImage(Function(XFile) onImagePicked) async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-  if (image != null) {
-    // Set state to update the UI
-    return image;
-  } else {
-    return null;
+    if (image != null) {
+      profileImage = image;
+      onImagePicked(image);
+    }
   }
-}
 }

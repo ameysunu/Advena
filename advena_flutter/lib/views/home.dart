@@ -1,11 +1,8 @@
 import 'dart:io';
-
 import 'package:advena_flutter/controllers/home.dart';
 import 'package:advena_flutter/designs/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -36,6 +33,7 @@ class _HomeState extends State<Home> {
     Widget commonContent = Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "${greeting} ${widget.user?.displayName ?? 'Guest'}",
@@ -84,27 +82,26 @@ class _HomeState extends State<Home> {
                             labelStyle:
                                 TextStyle(fontFamily: 'NeueHaas-Light')),
                       )),
-
-                    profileImage != null
-                        ? Image.file(profileImage as File, width: 100, height: 100)
-                        :
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          var profilePicture = _homeController.pickImage();
-                          if(profilePicture != null) {
-                             setState(() {
-                               profileImage = profilePicture as XFile?;
-                             });
-                          }
-                        },
-                        child: const Text('Upload a profile photo'),
-                      ),
+                  profileImage != null
+                      ? Center(
+                          child: Image.file(File(profileImage!.path),
+                              width: 200, height: 200),
+                        )
+                      : Container(),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _homeController.pickImage((image) {
+                          setState(() {
+                            profileImage = image;
+                          });
+                        });
+                      },
+                      child: const Text('Upload a profile photo',
+                          style: TextStyle(fontFamily: 'NeueHaas-Medium')),
                     ),
-                      
-
-                  const Text('Please sign in to continue'),
+                  ),
                 ],
               ),
               actions: <Widget>[
@@ -112,7 +109,10 @@ class _HomeState extends State<Home> {
                   onPressed: () {
                     print("GALANTIS");
                   },
-                  child: const Text('OK'),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(fontFamily: 'NeueHaas-Medium'),
+                  ),
                 ),
               ],
             ),
