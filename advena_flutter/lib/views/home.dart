@@ -22,6 +22,12 @@ class _HomeState extends State<Home> {
   String? greeting;
   bool? isDay;
   bool isSubmitting = false;
+  int _selectedIndex = 0;
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   void initState() {
     super.initState();
@@ -138,9 +144,46 @@ class _HomeState extends State<Home> {
     );
 
     return Scaffold(
-      body: isDay!
-          ? MorningGradientBackground(child: commonContent)
-          : EveningGradientBackground(child: commonContent),
+      body: Stack(
+        children: [
+          isDay!
+              ? MorningGradientBackground(child: commonContent)
+              : EveningGradientBackground(child: commonContent),
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                elevation: 10,
+                child: BottomNavigationBar(
+                  items: const <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.dashboard),
+                      label: 'Dashboard',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.search),
+                      label: 'Search',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person),
+                      label: 'Profile',
+                    ),
+                  ],
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: Colors.blue,
+                  onTap: _onItemTapped,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
