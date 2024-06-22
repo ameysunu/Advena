@@ -153,34 +153,49 @@ class _HomeState extends State<Home> {
             bottom: 16,
             left: 16,
             right: 16,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20.0),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                elevation: 10,
-                child: BottomNavigationBar(
-                  items: const <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.dashboard),
-                      label: 'Dashboard',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.search),
-                      label: 'Search',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.person),
-                      label: 'Profile',
-                    ),
+            child: Card(
+                elevation: 20,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = 0;
+                          });
+                        },
+                        child: navbarItems(
+                            Icon(Icons.dashboard),
+                            "Dashboard",
+                            _selectedIndex == 0
+                                ? Colors.blueAccent
+                                : Colors.blueGrey)),
+                    InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = 1;
+                          });
+                        },
+                        child: navbarItems(
+                            Icon(Icons.search),
+                            "Search",
+                            _selectedIndex == 1
+                                ? Colors.blueAccent
+                                : Colors.blueGrey)),
+                    InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = 2;
+                          });
+                        },
+                        child: navbarItems(
+                            Icon(Icons.person),
+                            "Account",
+                            _selectedIndex == 2
+                                ? Colors.blueAccent
+                                : Colors.blueGrey)),
                   ],
-                  currentIndex: _selectedIndex,
-                  selectedItemColor: Colors.blue,
-                  onTap: _onItemTapped,
-                ),
-              ),
-            ),
+                )),
           ),
         ],
       ),
