@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:advena_flutter/controllers/home.dart';
 import 'package:advena_flutter/designs/home.dart';
+import 'package:advena_flutter/designs/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -16,6 +17,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   HomeController _homeController = HomeController();
+  Widgets _widgets = Widgets();
   TextEditingController displayNameController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   XFile? profileImage;
@@ -138,7 +140,8 @@ class _HomeState extends State<Home> {
                         ),
                 ),
               ],
-            )
+            ),
+                    _widgets.mapWidget(),
         ],
       ),
     );
