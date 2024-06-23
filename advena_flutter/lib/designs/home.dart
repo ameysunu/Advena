@@ -234,7 +234,7 @@ class BirdsPainter extends CustomPainter {
       child: Column(
         children: [
           Icon(icon.icon, color: color),
-          Text(label, style: TextStyle(fontFamily: "NeueHaas-Medium", color: color),)
+          Text(label, style: TextStyle(fontFamily: "WorkSans", color: color),)
         ],
       ),
     );

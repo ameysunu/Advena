@@ -60,7 +60,10 @@ class _HomeState extends State<Home> {
                   FirebaseAuth.instance.signOut();
                   Navigator.pop(context);
                 },
-                child: const Text('Sign Out', style: TextStyle(fontFamily: 'WorkSans'),),
+                child: const Text(
+                  'Sign Out',
+                  style: TextStyle(fontFamily: 'WorkSans'),
+                ),
               ),
             ],
           ),
@@ -68,7 +71,10 @@ class _HomeState extends State<Home> {
             AlertDialog(
               title: const Text(
                 'Welcome to Advena!',
-                style: TextStyle(fontFamily: 'WorkSans', fontWeight: FontWeight.bold, fontSize: 25),
+                style: TextStyle(
+                    fontFamily: 'WorkSans',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25),
               ),
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,8 +90,7 @@ class _HomeState extends State<Home> {
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: "Your Name",
-                            labelStyle:
-                                TextStyle(fontFamily: 'WorkSans')),
+                            labelStyle: TextStyle(fontFamily: 'WorkSans')),
                       )),
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -94,8 +99,7 @@ class _HomeState extends State<Home> {
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: "Date of Birth (DD/MM/YYYY)",
-                            labelStyle:
-                                TextStyle(fontFamily: 'WorkSans')),
+                            labelStyle: TextStyle(fontFamily: 'WorkSans')),
                       )),
                   profileImage != null
                       ? Center(
@@ -114,7 +118,9 @@ class _HomeState extends State<Home> {
                         });
                       },
                       child: const Text('Upload a profile photo',
-                          style: TextStyle(fontFamily: 'WorkSans', fontWeight: FontWeight.bold)),
+                          style: TextStyle(
+                              fontFamily: 'WorkSans',
+                              fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -126,7 +132,9 @@ class _HomeState extends State<Home> {
                       isSubmitting = true;
                     });
                     _homeController.updateDisplayName(
-                        displayNameController.text, dobController.text, profileImage, (user) {
+                        displayNameController.text,
+                        dobController.text,
+                        profileImage, (user) {
                       setState(() {
                         isSubmitting = false;
                         widget.user = user;
@@ -137,13 +145,18 @@ class _HomeState extends State<Home> {
                       ? CircularProgressIndicator()
                       : Text(
                           'Submit',
-                          style: TextStyle(fontFamily: 'WorkSans', fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontFamily: 'WorkSans',
+                              fontWeight: FontWeight.bold),
                         ),
                 ),
               ],
             ),
           if (widget.user?.displayName != null)
-            _widgets.mapWidget(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
+              child: _widgets.combinedWidget(),
+            ),
         ],
       ),
     );
