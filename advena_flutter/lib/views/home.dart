@@ -126,7 +126,7 @@ class _HomeState extends State<Home> {
                       isSubmitting = true;
                     });
                     _homeController.updateDisplayName(
-                        displayNameController.text, dobController.text, (user) {
+                        displayNameController.text, dobController.text, profileImage, (user) {
                       setState(() {
                         isSubmitting = false;
                         widget.user = user;
