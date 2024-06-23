@@ -93,7 +93,14 @@ flutter:
     - family: NeueHaas-Light
       fonts:
         - asset: assets/fonts/NeueHaasDisplayLight.ttf
+    
+    - family: WorkSans
+      fonts:
+        - asset: assets/fonts/WorkSans-VariableFont_wght.ttf
 
+    - family: Figtree
+      fonts:
+        - asset: assets/fonts/Figtree-VariableFont_wght.ttf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

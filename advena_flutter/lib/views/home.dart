@@ -50,8 +50,9 @@ class _HomeState extends State<Home> {
               Text(
                 "${greeting} ${widget.user?.displayName ?? 'Guest'}",
                 style: TextStyle(
-                    fontFamily: 'NeueHaas-Medium',
+                    fontFamily: 'WorkSans',
                     fontSize: 20,
+                    fontWeight: FontWeight.bold,
                     color: HexColor('#FFFFFF')),
               ),
               ElevatedButton(
@@ -59,7 +60,7 @@ class _HomeState extends State<Home> {
                   FirebaseAuth.instance.signOut();
                   Navigator.pop(context);
                 },
-                child: const Text('Sign Out'),
+                child: const Text('Sign Out', style: TextStyle(fontFamily: 'WorkSans'),),
               ),
             ],
           ),
@@ -67,14 +68,14 @@ class _HomeState extends State<Home> {
             AlertDialog(
               title: const Text(
                 'Welcome to Advena!',
-                style: TextStyle(fontFamily: 'NeueHaas-Medium', fontSize: 25),
+                style: TextStyle(fontFamily: 'WorkSans', fontWeight: FontWeight.bold, fontSize: 25),
               ),
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    " Before you get started, we just we need a few details from your end.",
-                    style: TextStyle(fontFamily: 'NeueHaas-Light'),
+                    "Before you get started, we just we need a few details from your end.",
+                    style: TextStyle(fontFamily: 'WorkSans'),
                   ),
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -84,7 +85,7 @@ class _HomeState extends State<Home> {
                             border: OutlineInputBorder(),
                             labelText: "Your Name",
                             labelStyle:
-                                TextStyle(fontFamily: 'NeueHaas-Light')),
+                                TextStyle(fontFamily: 'WorkSans')),
                       )),
                   Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -94,7 +95,7 @@ class _HomeState extends State<Home> {
                             border: OutlineInputBorder(),
                             labelText: "Date of Birth (DD/MM/YYYY)",
                             labelStyle:
-                                TextStyle(fontFamily: 'NeueHaas-Light')),
+                                TextStyle(fontFamily: 'WorkSans')),
                       )),
                   profileImage != null
                       ? Center(
@@ -113,7 +114,7 @@ class _HomeState extends State<Home> {
                         });
                       },
                       child: const Text('Upload a profile photo',
-                          style: TextStyle(fontFamily: 'NeueHaas-Medium')),
+                          style: TextStyle(fontFamily: 'WorkSans', fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -136,12 +137,13 @@ class _HomeState extends State<Home> {
                       ? CircularProgressIndicator()
                       : Text(
                           'Submit',
-                          style: TextStyle(fontFamily: 'NeueHaas-Medium'),
+                          style: TextStyle(fontFamily: 'WorkSans', fontWeight: FontWeight.bold),
                         ),
                 ),
               ],
             ),
-                    _widgets.mapWidget(),
+          if (widget.user?.displayName != null)
+            _widgets.mapWidget(),
         ],
       ),
     );
