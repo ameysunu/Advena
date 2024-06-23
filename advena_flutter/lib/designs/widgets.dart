@@ -138,7 +138,7 @@ class Widgets {
         }
 
         return Text(
-          snapshot.data!,
+          "What's happening in \n${snapshot.data!}",
           style: TextStyle(
               fontFamily: "WorkSans",
               fontWeight: FontWeight.bold,

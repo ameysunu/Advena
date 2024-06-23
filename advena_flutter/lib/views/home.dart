@@ -155,7 +155,7 @@ class _HomeState extends State<Home> {
           if (widget.user?.displayName != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
-              child: _widgets.combinedWidget(),
+              child: _widgets.cityCountryWidget(),
             ),
         ],
       ),
