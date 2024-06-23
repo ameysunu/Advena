@@ -5,6 +5,10 @@ on:
     branches:
       - master
     types: [opened, synchronize]
+  
+  push:
+    branches:
+      - dev
 
 jobs:
   build:
