@@ -227,3 +227,15 @@ class BirdsPainter extends CustomPainter {
     return false;
   }
 }
+
+  Widget navbarItems(Icon icon, String label, Color color){
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        children: [
+          Icon(icon.icon, color: color),
+          Text(label, style: TextStyle(fontFamily: "WorkSans", color: color),)
+        ],
+      ),
+    );
+  }
