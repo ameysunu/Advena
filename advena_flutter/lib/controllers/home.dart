@@ -5,10 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HomeController {
   XFile? profileImage;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String get ticketMasterApi => dotenv.env['TICKETMASTER_API_KEY'] ?? '';
 
   List<dynamic> getGreetingMessage() {
     DateTime now = DateTime.now();
@@ -78,7 +80,7 @@ class HomeController {
 
   Future<String> getEventsFromTicketMaster(String geoHash) async {
     final String url =
-        'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=API_KEY&geoPoint=${geoHash}';
+        'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=$ticketMasterApi&geoPoint=${geoHash}';
     print(url);
     try {
       final response = await http.get(Uri.parse(url));
