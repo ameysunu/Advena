@@ -23,12 +23,13 @@ jobs:
         with:
           flutter-version: '3.22.2'
 
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: advena_flutter
+
       - name: Create .env file
         run: |
           echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > .env
-
-      - name: Install dependencies
-        run: flutter pub get
         working-directory: advena_flutter
 
       - name: Generate firebase_options.dart
