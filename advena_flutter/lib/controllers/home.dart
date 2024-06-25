@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class HomeController {
   XFile? profileImage;
@@ -72,5 +74,26 @@ class HomeController {
     }
     print("Image is null");
     return 'Error: No image selected';
+  }
+
+  Future<String> getEventsFromTicketMaster(String geoHash) async {
+    final String url =
+        'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=API_KEY&geoPoint=${geoHash}';
+    print(url);
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Data: $data');
+        return 'Data: $data';
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+        return 'Failed to load data. Status code: ${response.statusCode}';
+      }
+    } catch (error) {
+      print('Error fetching data: $error');
+      return 'Error fetching data: $error';
+    }
   }
 }

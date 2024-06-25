@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:advena_flutter/controllers/geohash.dart';
+import 'package:advena_flutter/controllers/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,13 +10,16 @@ import 'package:location/location.dart' as loc;
 class Widgets {
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
-
+  final GeoHash geoHashClass = GeoHash();
   final loc.Location location = loc.Location();
+  final HomeController _homeController = HomeController();
 
   final StreamController<LatLng?> _locationStreamController =
       StreamController<LatLng?>();
   final StreamController<String> _cityCountryStreamController =
       StreamController<String>();
+  final StreamController<String?> _eventsStreamController =
+      StreamController<String?>();
 
   Widgets() {
     _fetchLocationAndCityCountry();
@@ -22,16 +28,26 @@ class Widgets {
   Future<void> _fetchLocationAndCityCountry() async {
     try {
       LatLng? userLocation = await _getCurrentLocation();
-      _locationStreamController.add(userLocation);
-
       if (userLocation != null) {
+        _locationStreamController.add(userLocation);
+
         String cityCountry = await _getCityCountry(userLocation);
         _cityCountryStreamController.add(cityCountry);
+
+        var geoPoint = GeoPoint(userLocation.latitude, userLocation.longitude);
+        var geoHash = geoHashClass
+            .encodeGeohash(geoPoint.latitude, geoPoint.longitude, precision: 9);
+
+        String? events =
+            await _homeController.getEventsFromTicketMaster(geoHash);
+        _eventsStreamController.add(events);
       } else {
         _cityCountryStreamController.add('Unknown location');
+        _eventsStreamController.add(null);
       }
     } catch (e) {
       _cityCountryStreamController.add('Error: $e');
+      _eventsStreamController.add('Error: $e');
     }
   }
 
@@ -39,7 +55,6 @@ class Widgets {
     bool serviceEnabled;
     loc.PermissionStatus permissionGranted;
 
-    // Check if location service is enabled
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
@@ -48,7 +63,6 @@ class Widgets {
       }
     }
 
-    // Check for location permissions
     permissionGranted = await location.hasPermission();
     if (permissionGranted == loc.PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
@@ -63,19 +77,12 @@ class Widgets {
 
   Future<String> _getCityCountry(LatLng location) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        location.latitude,
-        location.longitude,
-      );
-
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(location.latitude, location.longitude);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
-        String city = place.locality ?? '';
+        String city = place.locality ?? place.administrativeArea ?? '';
         String country = place.country ?? '';
-        print(place);
-        if (city == '') {
-          city = place.administrativeArea ?? '';
-        }
         return '$city, $country';
       } else {
         return 'Unknown location';
@@ -129,33 +136,41 @@ class Widgets {
           return Center(child: CircularProgressIndicator());
         }
 
-        if (snapshot.hasError || !snapshot.hasData) {
+        if (snapshot.hasError ||
+            !snapshot.hasData ||
+            snapshot.data!.contains('Error')) {
           return Center(child: Text('Could not get location.'));
-        }
-
-        if (snapshot.data!.contains('Error')) {
-          return Center(child: Text(""));
         }
 
         return Text(
           "What's happening in \n${snapshot.data!}",
           style: TextStyle(
-              fontFamily: "WorkSans",
-              fontWeight: FontWeight.bold,
-              fontSize: 25),
+            fontFamily: "WorkSans",
+            fontWeight: FontWeight.bold,
+            fontSize: 25,
+          ),
         );
       },
     );
   }
 
-  Widget combinedWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        mapWidget(),
-        SizedBox(height: 10),
-        cityCountryWidget(),
-      ],
+  Widget eventsWidget() {
+    return StreamBuilder<String?>(
+      stream: _eventsStreamController.stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+          return Center(child: Text('Could not get events.'));
+        }
+
+        return Container(
+          height: 300,
+          child: Text(snapshot.data!),
+        );
+      },
     );
   }
 }

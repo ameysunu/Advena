@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 
+// ignore: must_be_immutable
 class Home extends StatefulWidget {
   User? user;
   Home({Key? key, this.user});
@@ -157,6 +158,10 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
               child: _widgets.cityCountryWidget(),
             ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
+            child: _widgets.eventsWidget(),
+          ),
         ],
       ),
     );
