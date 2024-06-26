@@ -23,13 +23,10 @@ jobs:
         working-directory: advena_flutter
 
       - name: Create .env file
-        run: |
-          echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > .env
-        working-directory: advena_flutter
+        run: echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > advena_flutter/.env
 
       - name: Generate firebase_options.dart
-        run: |
-          echo "$FIREBASE_OPTIONS_CONTENT" > advena_flutter/lib/firebase_options.dart
+        run: echo "$FIREBASE_OPTIONS_CONTENT" > advena_flutter/lib/firebase_options.dart
         env:
           FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
 
@@ -37,17 +34,24 @@ jobs:
         run: flutter build apk --release
         working-directory: advena_flutter
 
-      - name: Archive APK
-        run: tar -czvf app-release.tar.gz build/app/outputs/flutter-apk/app-release.apk
-        working-directory: advena_flutter
+      - name: Debug - List files after build
+        run: |
+          echo "Working directory: $(pwd)"
+          echo "List of files in advena_flutter/build/app/outputs/flutter-apk:"
+          ls -R advena_flutter/build/app/outputs/flutter-apk
 
-      - name: LS
-        run: ls
-        working-directory: advena_flutter
+      - name: Archive APK
+        run: tar -czvf advena_flutter/app-release.tar.gz -C advena_flutter/build/app/outputs/flutter-apk app-release.apk
+
+      - name: Debug - List files after archive
+        run: |
+          echo "Working directory: $(pwd)"
+          echo "List of files in the GitHub workspace:"
+          ls -R ${{ github.workspace }}
 
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v2
         with:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           app-name: 'ameyplayservice'
-          package: '${{github.workspace}}/app-release.tar.gz'
+          package: '${{ github.workspace }}/advena_flutter/app-release.tar.gz'
