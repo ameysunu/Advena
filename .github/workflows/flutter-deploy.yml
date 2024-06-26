@@ -30,28 +30,13 @@ jobs:
         env:
           FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
 
-      - name: Run Flutter build
+      - name: Run Flutter build APK release
         run: flutter build apk --release
         working-directory: advena_flutter
-
-      - name: Debug - List files after build
-        run: |
-          echo "Working directory: $(pwd)"
-          echo "List of files in advena_flutter/build/app/outputs/flutter-apk:"
-          ls -R advena_flutter/build/app/outputs/flutter-apk
-
-      - name: Archive APK
-        run: tar -czvf /app-release.tar.gz -C advena_flutter/build/app/outputs/flutter-apk app-release.apk
-
-      - name: Debug - List files after archive
-        run: |
-          echo "Working directory: $(pwd)"
-          echo "List of files in the GitHub workspace:"
-          ls -R ${{ github.workspace }}
 
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v2
         with:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           app-name: 'ameyplayservice'
-          package: '/app-release.tar.gz'
+          package: 'advena_flutter/build/app/outputs/flutter-apk/app-release.apk'
