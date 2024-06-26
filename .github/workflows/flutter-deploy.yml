@@ -2,11 +2,11 @@ name: Flutter Deploy Release
 
 on:
   workflow_run:
-    workflows: Flutter Build Master
-    branches: idx
-    types:
-      - completed
-
+    workflows: ['Flutter Build Master']
+    types: [completed]
+    branches:
+      - idx
+      
 jobs:
   build:
     runs-on: ubuntu-latest
