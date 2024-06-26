@@ -46,4 +46,4 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           app-name: 'ameyplayservice'
-          package: '/firebase_options.dart'
+          package: './firebase_options.dart'
