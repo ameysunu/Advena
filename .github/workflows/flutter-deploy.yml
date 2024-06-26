@@ -30,16 +30,16 @@ jobs:
         env:
           FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
 
-      - name: Run Flutter build APK release
-        run: flutter build apk --release
-        working-directory: advena_flutter
+      # - name: Run Flutter build APK release
+      #   run: flutter build apk --release
+      #   working-directory: advena_flutter
 
-      - name: List build directory contents
-        run: ls -R build
-        working-directory: advena_flutter
+      # - name: List build directory contents
+      #   run: ls -R build
+      #   working-directory: advena_flutter
 
       - name: Move APK to root of workspace
-        run: mv advena_flutter/build/app/outputs/flutter-apk/app-release.apk $GITHUB_WORKSPACE/app-release.apk
+        run: mv advena_flutter/lib/firebase_options.dart $GITHUB_WORKSPACE/firebase_options.dart
 
       - name: List workspace contents
         run: ls
@@ -50,4 +50,4 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           app-name: 'ameyplayservice'
-          package: '$GITHUB_WORKSPACE/app-release.apk'
+          package: '$GITHUB_WORKSPACE/firebase_options.dart'
