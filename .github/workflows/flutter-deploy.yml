@@ -2,10 +2,9 @@ name: Flutter Deploy Release
 
 on:
   workflow_run:
-    workflows: ['Flutter Build Master']
-    types: [completed]
-    branches:
-      - idx
+    workflows: ["Flutter Build Master"]
+    types:
+      - completed
       
 jobs:
   build:
