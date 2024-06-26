@@ -71,3 +71,4 @@ jobs:
         with:
           name: app-release-apk
           path: advena_flutter/build/app/outputs/flutter-apk/app-release.apk
+
