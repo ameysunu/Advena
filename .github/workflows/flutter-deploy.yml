@@ -1,9 +1,10 @@
 name: Flutter Deploy Release
 
 on:
-  push:
-    branches:
-      - idx
+  workflow_run:
+    workflows: ["Flutter Build Master"]
+    types:
+      - completed
 
 jobs:
   build:
@@ -13,45 +14,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - name: Download APK artifact
+        uses: actions/download-artifact@v2
         with:
-          flutter-version: '3.22.2'
-
-      - name: Cache Flutter SDK
-        uses: actions/cache@v2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-cache-${{ hashFiles('**/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-cache-
+          name: app-release-apk
+          path: ./advena_flutter/build/app/outputs/flutter-apk/
 
 
-      - name: Install dependencies
-        run: flutter pub get
-        working-directory: advena_flutter
+      # - name: Setup Flutter
+      #   uses: subosito/flutter-action@v2
+      #   with:
+      #     flutter-version: '3.22.2'
 
-      - name: Cache Gradle
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      # - name: Cache Flutter SDK
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.pub-cache
+      #     key: ${{ runner.os }}-pub-cache-${{ hashFiles('**/pubspec.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pub-cache-
 
-      - name: Create .env file
-        run: echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > advena_flutter/.env
 
-      - name: Generate firebase_options.dart
-        run: echo "$FIREBASE_OPTIONS_CONTENT" > advena_flutter/lib/firebase_options.dart
-        env:
-          FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
+      # - name: Install dependencies
+      #   run: flutter pub get
+      #   working-directory: advena_flutter
 
-      - name: Run Flutter build APK release
-        run: flutter build apk --release
-        working-directory: advena_flutter
+      # - name: Cache Gradle
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       ~/.gradle/caches
+      #       ~/.gradle/wrapper
+      #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-gradle-
+
+      # - name: Create .env file
+      #   run: echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > advena_flutter/.env
+
+      # - name: Generate firebase_options.dart
+      #   run: echo "$FIREBASE_OPTIONS_CONTENT" > advena_flutter/lib/firebase_options.dart
+      #   env:
+      #     FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
+
+      # - name: Run Flutter build APK release
+      #   run: flutter build apk --release
+      #   working-directory: advena_flutter
 
       - name: Move APK to root of workspace
         run: mv advena_flutter/build/app/outputs/flutter-apk/app-release.apk ${{ github.workspace }}/app-release.apk
