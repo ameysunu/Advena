@@ -13,14 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.2'
+      # - name: Setup Flutter
+      #   uses: subosito/flutter-action@v2
+      #   with:
+      #     flutter-version: '3.22.2'
 
-      - name: Install dependencies
-        run: flutter pub get
-        working-directory: advena_flutter
+      # - name: Install dependencies
+      #   run: flutter pub get
+      #   working-directory: advena_flutter
 
       - name: Create .env file
         run: echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > advena_flutter/.env
@@ -39,7 +39,7 @@ jobs:
       #   working-directory: advena_flutter
 
       - name: Move APK to root of workspace
-        run: mv advena_flutter/lib/firebase_options.dart $GITHUB_WORKSPACE/firebase_options.dart
+        run: mv advena_flutter/lib/firebase_options.dart ${{ github.workspace }}/firebase_options.dart
 
       - name: List workspace contents
         run: ls
@@ -50,4 +50,4 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           app-name: 'ameyplayservice'
-          package: '$GITHUB_WORKSPACE/firebase_options.dart'
+          package: '${{ github.workspace }}/firebase_options.dart'
