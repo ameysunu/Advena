@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:advena_flutter/controllers/geohash.dart';
 import 'package:advena_flutter/controllers/home.dart';
+import 'package:advena_flutter/models/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -18,8 +19,8 @@ class Widgets {
       StreamController<LatLng?>();
   final StreamController<String> _cityCountryStreamController =
       StreamController<String>();
-  final StreamController<String?> _eventsStreamController =
-      StreamController<String?>();
+  final StreamController<List<EventApiResult>?> _eventsStreamController =
+      StreamController<List<EventApiResult>?>.broadcast();
 
   Widgets() {
     _fetchLocationAndCityCountry();
@@ -38,16 +39,21 @@ class Widgets {
         var geoHash = geoHashClass
             .encodeGeohash(geoPoint.latitude, geoPoint.longitude, precision: 9);
 
-        String? events =
-            await _homeController.getEventsFromTicketMaster(geoHash);
-        _eventsStreamController.add(events);
+        List<EventApiResult> eventsList = [];
+
+        for (int i = 0; i < 10; i++) {
+          EventApiResult? events =
+              await _homeController.getEventsFromTicketMaster(geoHash, "$i");
+          eventsList.add(events);
+        }
+
+        _eventsStreamController.add(eventsList);
       } else {
         _cityCountryStreamController.add('Unknown location');
         _eventsStreamController.add(null);
       }
     } catch (e) {
       _cityCountryStreamController.add('Error: $e');
-      _eventsStreamController.add('Error: $e');
     }
   }
 
@@ -155,20 +161,46 @@ class Widgets {
   }
 
   Widget eventsWidget() {
-    return StreamBuilder<String?>(
+    return StreamBuilder<List<EventApiResult>?>(
       stream: _eventsStreamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         }
 
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+        if (snapshot.hasError || !snapshot.hasData) {
           return Center(child: Text('Could not get events.'));
+        }
+
+        final eventsList = snapshot.data!;
+
+        if (eventsList.isEmpty) {
+          return Center(child: Text('No events found.'));
         }
 
         return Container(
           height: 300,
-          child: Text(snapshot.data!),
+          child: ListView.builder(
+            itemCount: eventsList.length,
+            itemBuilder: (context, index) {
+              final eventResult = eventsList[index];
+              if (eventResult.error != null) {
+                final errorDetail = eventResult.error!.errors!.isEmpty
+                    ? 'Unknown error'
+                    : eventResult.error!.errors![0].detail!;
+                return ListTile(
+                  title: Text('Error: $errorDetail'),
+                );
+              } else {
+                final events = eventResult.data!.embedded!.events!;
+                return ListTile(
+                  title: Text(events.isNotEmpty
+                      ? events[0].name ?? 'No name'
+                      : 'No events found'),
+                );
+              }
+            },
+          ),
         );
       },
     );
