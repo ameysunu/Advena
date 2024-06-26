@@ -1,0 +1,42 @@
+name: Flutter Build Master
+
+on:  
+  push:
+    branches:
+      - idx
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: advena_flutter
+
+      - name: Create .env file
+        run: echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > .env
+        working-directory: advena_flutter
+
+      - name: Generate firebase_options.dart
+        run: echo "$FIREBASE_OPTIONS_CONTENT" > advena_flutter/lib/firebase_options.dart
+        env:
+          FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
+
+      - name: Run Flutter build
+        run: flutter build apk --release
+        working-directory: advena_flutter
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release-apk
+          path: advena_flutter/build/app/outputs/flutter-apk/app-release.apk
