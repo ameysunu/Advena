@@ -36,7 +36,6 @@ jobs:
 
       - name: Move APK to root of workspace
         run: mv advena_flutter/build/app/outputs/flutter-apk/release/app-release.apk $GITHUB_WORKSPACE/app-release.apk
-        working-directory: advena_flutter
 
       - name: LS Workspace
         run: ls
