@@ -34,10 +34,14 @@ jobs:
         run: flutter build apk --release
         working-directory: advena_flutter
 
-      - name: Move APK to root of workspace
-        run: mv advena_flutter/build/app/outputs/flutter-apk/release/app-release.apk $GITHUB_WORKSPACE/app-release.apk
+      - name: List build directory contents
+        run: ls -R build
+        working-directory: advena_flutter
 
-      - name: LS Workspace
+      - name: Move APK to root of workspace
+        run: mv advena_flutter/build/app/outputs/flutter-apk/app-release.apk $GITHUB_WORKSPACE/app-release.apk
+
+      - name: List workspace contents
         run: ls
         working-directory: $GITHUB_WORKSPACE
 
