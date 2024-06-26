@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:advena_flutter/models/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -78,24 +79,22 @@ class HomeController {
     return 'Error: No image selected';
   }
 
-  Future<String> getEventsFromTicketMaster(String geoHash) async {
-    final String url =
-        'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=$ticketMasterApi&geoPoint=${geoHash}';
-    print(url);
-    try {
-      final response = await http.get(Uri.parse(url));
+Future<EventApiResult> getEventsFromTicketMaster(String geoHash, String pageNumber) async {
+  final String url =
+      'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=$ticketMasterApi&geoPoint=${geoHash}&page=$pageNumber';
+  print(url);
+  try {
+    final response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print('Data: $data');
-        return 'Data: $data';
-      } else {
-        print('Failed to load data. Status code: ${response.statusCode}');
-        return 'Failed to load data. Status code: ${response.statusCode}';
-      }
-    } catch (error) {
-      print('Error fetching data: $error');
-      return 'Error fetching data: $error';
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return EventApiResult(data: EventApiResponse.fromJson(data));
+    } else {
+      final data = json.decode(response.body);
+      return EventApiResult(error: EventApiErrorResponse.fromJson(data));
     }
+  } catch (error) {
+    return EventApiResult(error: EventApiErrorResponse(errors: [ErrorDetail(detail: 'Error fetching data: $error')]));
   }
+}
 }
