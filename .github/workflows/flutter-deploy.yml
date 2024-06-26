@@ -13,14 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # - name: Setup Flutter
-      #   uses: subosito/flutter-action@v2
-      #   with:
-      #     flutter-version: '3.22.2'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
 
-      # - name: Install dependencies
-      #   run: flutter pub get
-      #   working-directory: advena_flutter
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: advena_flutter
 
       - name: Create .env file
         run: echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > advena_flutter/.env
@@ -30,19 +30,15 @@ jobs:
         env:
           FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
 
-      # - name: Run Flutter build APK release
-      #   run: flutter build apk --release
-      #   working-directory: advena_flutter
-
-      # - name: List build directory contents
-      #   run: ls -R build
-      #   working-directory: advena_flutter
+      - name: Run Flutter build APK release
+        run: flutter build apk --release
+        working-directory: advena_flutter
 
       - name: Move APK to root of workspace
-        run: mv advena_flutter/lib/firebase_options.dart ${{ github.workspace }}/firebase_options.dart
-
+        run: mv advena_flutter/build/app/outputs/flutter-apk/app-release.apk ${{ github.workspace }}/app-release.apk
+        
       - name: Package APK into a zip file
-        run: zip -j ${{ github.workspace }}/app-release.zip ${{ github.workspace }}/firebase_options.dart
+        run: zip -j ${{ github.workspace }}/app-release.zip ${{ github.workspace }}/app-release.apk
 
 
       - name: Deploy to Azure WebApp
