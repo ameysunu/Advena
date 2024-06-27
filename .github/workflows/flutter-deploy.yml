@@ -7,64 +7,22 @@ on:
       
 jobs:
   build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Download APK artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: app-release-apk
-          path: ./advena_flutter/build/app/outputs/flutter-apk/
-
-
-      # - name: Setup Flutter
-      #   uses: subosito/flutter-action@v2
-      #   with:
-      #     flutter-version: '3.22.2'
-
-      # - name: Cache Flutter SDK
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ~/.pub-cache
-      #     key: ${{ runner.os }}-pub-cache-${{ hashFiles('**/pubspec.yaml') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-pub-cache-
-
-
-      # - name: Install dependencies
-      #   run: flutter pub get
-      #   working-directory: advena_flutter
-
-      # - name: Cache Gradle
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: |
-      #       ~/.gradle/caches
-      #       ~/.gradle/wrapper
-      #     key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-gradle-
-
-      # - name: Create .env file
-      #   run: echo "TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}" > advena_flutter/.env
-
-      # - name: Generate firebase_options.dart
-      #   run: echo "$FIREBASE_OPTIONS_CONTENT" > advena_flutter/lib/firebase_options.dart
-      #   env:
-      #     FIREBASE_OPTIONS_CONTENT: ${{ secrets.FIREBASE_OPTIONS }}
-
-      # - name: Run Flutter build APK release
-      #   run: flutter build apk --release
-      #   working-directory: advena_flutter
-
-      - name: Move APK to root of workspace
-        run: mv advena_flutter/build/app/outputs/flutter-apk/app-release.apk ${{ github.workspace }}/app-release.apk
-        
-      - name: Package APK into a zip file
-        run: zip -j ${{ github.workspace }}/app-release.zip ${{ github.workspace }}/app-release.apk
+      # Give Action permissions to read write for downloading Artifact. Go to Settings > Actions > General > Workflow Permissions
+    
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v6
+        with: 
+          workflow: flutter-master-build.yaml
+          workflow_search: false
+          workflow_conclusion: success
 
 
       - name: Deploy to Azure WebApp
@@ -72,4 +30,4 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           app-name: 'ameyplayservice'
-          package: './app-release.zip'
+          package: './app-release-apk'
