@@ -15,9 +15,9 @@ jobs:
 
       - name: Download APK artifact
         uses: actions/download-artifact@v2
-        with:
-          name: app-release-apk
-          path: advena_flutter/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: List all artifacts
+        run: ls -R
 
 
 
