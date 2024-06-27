@@ -14,6 +14,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Give Action permissions to read write for downloading Artifact. Go to Settings > Actions > General > Workflow Permissions
+    
       - name: Download artifact
         id: download-artifact
         uses: dawidd6/action-download-artifact@v6
@@ -21,6 +23,9 @@ jobs:
           workflow: flutter-master-build.yaml
           workflow_search: false
           workflow_conclusion: success
+
+      - name: Show the artifacts
+        run: ls -R
 
       # - name: Setup Flutter
       #   uses: subosito/flutter-action@v2
