@@ -41,8 +41,9 @@ class Event {
   final bool? test;
   final String? url;
   final String? locale;
+  final List<ImageItem>? images;
 
-  Event({this.name, this.type, this.id, this.test, this.url, this.locale});
+  Event({this.name, this.type, this.id, this.test, this.url, this.locale, this.images});
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
@@ -52,6 +53,7 @@ class Event {
       test: json['test'],
       url: json['url'],
       locale: json['locale'],
+      images: json['images'] != null ? List<ImageItem>.from(json['images'].map((x) => ImageItem.fromJson(x))) : null,
     );
   }
 
@@ -63,8 +65,59 @@ class Event {
       'test': test,
       'url': url,
       'locale': locale,
+      'images': images?.map((x) => x.toJson()).toList(), 
     };
   }
+}
+
+
+class Images {
+  final List<ImageItem>? images;
+
+  Images({this.images});
+
+  factory Images.fromJson(Map<String, dynamic> json) {
+    return Images(
+      images: json['images'] != null ? List<ImageItem>.from(json['images'].map((x) => ImageItem.fromJson(x))) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'images': images?.map((x) => x.toJson()).toList(),
+    };
+  }
+}
+
+
+class ImageItem {
+  final String? ratio;
+  final String? url;
+  final int? width;
+  final int? height;
+  final bool? fallback;
+
+  ImageItem({this.ratio, this.url, this.width, this.height, this.fallback});
+
+    factory ImageItem.fromJson(Map<String, dynamic> json) {
+    return ImageItem(
+      ratio: json['name'],
+      url: json['url'],
+      width: json['width'],
+      height: json['height'],
+      fallback: json['fallback'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'ratio' : ratio,
+      'url' : url,
+      'width' : width,
+      'height' : height,
+      'fallback' : fallback
+    };
+}
 }
 
 class EventApiErrorResponse {
