@@ -290,6 +290,7 @@ class Widgets {
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(10.0),
@@ -314,6 +315,18 @@ class Widgets {
                       event.embedded!.venues![0].location!.longitude!,
                       event.embedded!.venues![0].location!.latitude!,
                       context),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      "Powered by Ticketmaster Discovery API",
+                      style: TextStyle(
+                          fontFamily: "WorkSans",
+                          fontSize: 15,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey
+                          ),
+                    ),
+                  ),
                   ElevatedButton(
                     child: Text('Close BottomSheet'),
                     onPressed: () => Navigator.pop(context),
