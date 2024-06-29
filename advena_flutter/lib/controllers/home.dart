@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 
 class HomeController {
   XFile? profileImage;
@@ -80,8 +81,10 @@ class HomeController {
   }
 
 Future<EventApiResult> getEventsFromTicketMaster(String geoHash, String pageNumber) async {
+  List<String> dateTimes = startEndDateTime();
+
   final String url =
-      'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=$ticketMasterApi&geoPoint=${geoHash}&page=$pageNumber';
+      'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=$ticketMasterApi&geoPoint=${geoHash}&page=$pageNumber&startDateTime=${dateTimes[0]}&endDateTime=${dateTimes[1]}';
   print(url);
   try {
     final response = await http.get(Uri.parse(url));
@@ -97,4 +100,35 @@ Future<EventApiResult> getEventsFromTicketMaster(String geoHash, String pageNumb
     return EventApiResult(error: EventApiErrorResponse(errors: [ErrorDetail(detail: 'Error fetching data: $error')]));
   }
 }
+
+String formatEventDate(String dateString) {
+  DateTime dateTime = DateTime.parse(dateString);
+
+  String day = dateTime.day.toString();
+  String daySuffix = 'th';
+  if (day.endsWith('1') && !day.endsWith('11')) {
+    daySuffix = 'st';
+  } else if (day.endsWith('2') && !day.endsWith('12')) {
+    daySuffix = 'nd';
+  } else if (day.endsWith('3') && !day.endsWith('13')) {
+    daySuffix = 'rd';
+  }
+  String formattedDay = day + daySuffix;
+
+  String formattedMonth = DateFormat('MMMM').format(dateTime);
+  String formattedYear = dateTime.year.toString();
+
+  return '$formattedDay $formattedMonth $formattedYear';
+}
+
+List<String> startEndDateTime() {
+  DateTime dateTime = DateTime.now().toUtc();
+  DateTime tomorrow = dateTime.add(Duration(days: 90));
+
+  String formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(dateTime);
+  String formattedEndDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(tomorrow);
+
+  return [formattedDate, formattedEndDate];
+}
+
 }

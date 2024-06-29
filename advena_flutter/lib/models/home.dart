@@ -42,8 +42,18 @@ class Event {
   final String? url;
   final String? locale;
   final List<ImageItem>? images;
+  final Dates? dates;
 
-  Event({this.name, this.type, this.id, this.test, this.url, this.locale, this.images});
+  Event({
+    this.name,
+    this.type,
+    this.id,
+    this.test,
+    this.url,
+    this.locale,
+    this.images,
+    this.dates,
+  });
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
@@ -54,6 +64,7 @@ class Event {
       url: json['url'],
       locale: json['locale'],
       images: json['images'] != null ? List<ImageItem>.from(json['images'].map((x) => ImageItem.fromJson(x))) : null,
+      dates: json['dates'] != null ? Dates.fromJson(json['dates']) : null,
     );
   }
 
@@ -65,30 +76,100 @@ class Event {
       'test': test,
       'url': url,
       'locale': locale,
-      'images': images?.map((x) => x.toJson()).toList(), 
+      'images': images?.map((x) => x.toJson()).toList(),
+      'dates': dates?.toJson(),
     };
   }
 }
 
+class Dates {
+  final Start? start;
+  final String? timezone;
+  final Status? status;
+  final bool? spanMultipleDays;
 
-class Images {
-  final List<ImageItem>? images;
+  Dates({this.start, this.timezone, this.status, this.spanMultipleDays});
 
-  Images({this.images});
-
-  factory Images.fromJson(Map<String, dynamic> json) {
-    return Images(
-      images: json['images'] != null ? List<ImageItem>.from(json['images'].map((x) => ImageItem.fromJson(x))) : null,
+  factory Dates.fromJson(Map<String, dynamic> json) {
+    return Dates(
+      start: json['start'] != null ? Start.fromJson(json['start']) : null,
+      timezone: json['timezone'],
+      status: json['status'] != null ? Status.fromJson(json['status']) : null,
+      spanMultipleDays: json['spanMultipleDays'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'images': images?.map((x) => x.toJson()).toList(),
+      'start': start?.toJson(),
+      'timezone': timezone,
+      'status': status?.toJson(),
+      'spanMultipleDays': spanMultipleDays,
     };
   }
 }
 
+class Start {
+  final String? localDate;
+  final String? localTime;
+  final String? dateTime;
+  final bool? dateTBD;
+  final bool? dateTBA;
+  final bool? timeTBA;
+  final bool? noSpecificTime;
+
+  Start({
+    this.localDate,
+    this.localTime,
+    this.dateTime,
+    this.dateTBD,
+    this.dateTBA,
+    this.timeTBA,
+    this.noSpecificTime,
+  });
+
+  factory Start.fromJson(Map<String, dynamic> json) {
+    return Start(
+      localDate: json['localDate'],
+      localTime: json['localTime'],
+      dateTime: json['dateTime'],
+      dateTBD: json['dateTBD'],
+      dateTBA: json['dateTBA'],
+      timeTBA: json['timeTBA'],
+      noSpecificTime: json['noSpecificTime'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'localDate': localDate,
+      'localTime': localTime,
+      'dateTime': dateTime,
+      'dateTBD': dateTBD,
+      'dateTBA': dateTBA,
+      'timeTBA': timeTBA,
+      'noSpecificTime': noSpecificTime,
+    };
+  }
+}
+
+class Status {
+  final String? code;
+
+  Status({this.code});
+
+  factory Status.fromJson(Map<String, dynamic> json) {
+    return Status(
+      code: json['code'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+    };
+  }
+}
 
 class ImageItem {
   final String? ratio;
@@ -99,9 +180,9 @@ class ImageItem {
 
   ImageItem({this.ratio, this.url, this.width, this.height, this.fallback});
 
-    factory ImageItem.fromJson(Map<String, dynamic> json) {
+  factory ImageItem.fromJson(Map<String, dynamic> json) {
     return ImageItem(
-      ratio: json['name'],
+      ratio: json['ratio'],
       url: json['url'],
       width: json['width'],
       height: json['height'],
@@ -111,13 +192,13 @@ class ImageItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'ratio' : ratio,
-      'url' : url,
-      'width' : width,
-      'height' : height,
-      'fallback' : fallback
+      'ratio': ratio,
+      'url': url,
+      'width': width,
+      'height': height,
+      'fallback': fallback,
     };
-}
+  }
 }
 
 class EventApiErrorResponse {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:advena_flutter/controllers/geohash.dart';
 import 'package:advena_flutter/controllers/home.dart';
 import 'package:advena_flutter/models/home.dart';
@@ -41,7 +42,10 @@ class Widgets {
 
         List<EventApiResult> eventsList = [];
 
-        for (int i = 0; i < 10; i++) {
+        var random = Random();
+        List<int> randomNumbers = List.generate(5, (_) => random.nextInt(250));
+
+        for (var i in randomNumbers) {
           EventApiResult? events =
               await _homeController.getEventsFromTicketMaster(geoHash, "$i");
           eventsList.add(events);
@@ -134,7 +138,10 @@ class Widgets {
     );
   }
 
-  Widget cityCountryWidget() {
+  Widget cityCountryWidget(bool isDay) {
+    
+    final Color textColor = isDay ? Colors.black : Colors.white;
+
     return StreamBuilder<String>(
       stream: _cityCountryStreamController.stream,
       builder: (context, snapshot) {
@@ -154,55 +161,120 @@ class Widgets {
             fontFamily: "WorkSans",
             fontWeight: FontWeight.bold,
             fontSize: 25,
+            color: textColor,
           ),
         );
       },
     );
   }
 
-  Widget eventsWidget() {
-    return StreamBuilder<List<EventApiResult>?>(
-      stream: _eventsStreamController.stream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
+Widget eventsWidget() {
+  return StreamBuilder<List<EventApiResult>?>(
+    stream: _eventsStreamController.stream,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      }
 
-        if (snapshot.hasError || !snapshot.hasData) {
-          return Center(child: Text('Could not get events.'));
-        }
+      if (snapshot.hasError || !snapshot.hasData) {
+        return Center(child: Text('Could not get events.'));
+      }
 
-        final eventsList = snapshot.data!;
+      final eventsList = snapshot.data!;
 
-        if (eventsList.isEmpty) {
-          return Center(child: Text('No events found.'));
-        }
+      if (eventsList.isEmpty) {
+        return Center(child: Text('No events found.'));
+      }
 
-        return Container(
-          height: 300,
-          child: ListView.builder(
-            itemCount: eventsList.length,
-            itemBuilder: (context, index) {
-              final eventResult = eventsList[index];
-              if (eventResult.error != null) {
-                final errorDetail = eventResult.error!.errors!.isEmpty
-                    ? 'Unknown error'
-                    : eventResult.error!.errors![0].detail!;
-                return ListTile(
-                  title: Text('Error: $errorDetail'),
-                );
-              } else {
-                final events = eventResult.data!.embedded!.events!;
-                return ListTile(
-                  title: Text(events.isNotEmpty
-                      ? events[0].name ?? 'No name'
-                      : 'No events found'),
-                );
-              }
-            },
-          ),
-        );
-      },
-    );
-  }
+      return Container(
+        height: 300,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: eventsList.length,
+          itemBuilder: (context, index) {
+            final eventResult = eventsList[index];
+            if (eventResult.error != null) {
+              final errorDetail = eventResult.error!.errors!.isEmpty
+                  ? 'Unknown error'
+                  : eventResult.error!.errors![0].detail!;
+              return Container(
+                width: 200,
+                child: Center(
+                  child: Text('Error: $errorDetail'),
+                ),
+              );
+            } else {
+              final events = eventResult.data!.embedded!.events!;
+              return Row(
+                children: events.map((event) {
+                  return GestureDetector(
+                    onTap: () async {
+                      // if (event.url != null) {
+                      //   if (await canLaunch(event.url!)) {
+                      //     await launch(event.url!);
+                      //   } else {
+                      //     throw 'Could not launch ${event.url}';
+                      //   }
+                      // }
+                    },
+                    child: Container(
+                      width: 300,
+                      height: 300,
+                      margin: EdgeInsets.symmetric(horizontal: 8.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        image: DecorationImage(
+                          image: NetworkImage(
+                            event.images![0].url!,
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Spacer(),
+                              Text(
+                                event.name ?? 'No name',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "WorkSans",
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                child: Text(
+                                  "${_homeController.formatEventDate(event.dates!.start!.localDate!)} @ ${event.dates?.start?.localTime}",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: "WorkSans",
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            }
+          },
+        ),
+      );
+    },
+  );
+}
 }
