@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 
 class HomeController {
   XFile? profileImage;
@@ -96,5 +97,25 @@ Future<EventApiResult> getEventsFromTicketMaster(String geoHash, String pageNumb
   } catch (error) {
     return EventApiResult(error: EventApiErrorResponse(errors: [ErrorDetail(detail: 'Error fetching data: $error')]));
   }
+}
+
+String formatEventDate(String dateString) {
+  DateTime dateTime = DateTime.parse(dateString);
+
+  String day = dateTime.day.toString();
+  String daySuffix = 'th';
+  if (day.endsWith('1') && !day.endsWith('11')) {
+    daySuffix = 'st';
+  } else if (day.endsWith('2') && !day.endsWith('12')) {
+    daySuffix = 'nd';
+  } else if (day.endsWith('3') && !day.endsWith('13')) {
+    daySuffix = 'rd';
+  }
+  String formattedDay = day + daySuffix;
+
+  String formattedMonth = DateFormat('MMMM').format(dateTime);
+  String formattedYear = dateTime.year.toString();
+
+  return '$formattedDay $formattedMonth $formattedYear';
 }
 }

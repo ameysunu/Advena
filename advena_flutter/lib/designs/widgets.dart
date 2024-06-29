@@ -225,25 +225,45 @@ Widget eventsWidget() {
                         borderRadius: BorderRadius.circular(16),
                         image: DecorationImage(
                           image: NetworkImage(
-                            event.images![0].url!, // Replace with your image URL
+                            event.images![0].url!,
                           ),
                           fit: BoxFit.cover,
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              event.name ?? 'No name',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "WorkSans",
-                                fontSize: 20
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Spacer(),
+                              Text(
+                                event.name ?? 'No name',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "WorkSans",
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                child: Text(
+                                  "${_homeController.formatEventDate(event.dates!.start!.localDate!)} @ ${event.dates?.start?.localTime}",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: "WorkSans",
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
