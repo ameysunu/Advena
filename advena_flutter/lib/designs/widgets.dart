@@ -139,7 +139,6 @@ class Widgets {
   }
 
   Widget cityCountryWidget(bool isDay) {
-    
     final Color textColor = isDay ? Colors.black : Colors.white;
 
     return StreamBuilder<String>(
@@ -168,113 +167,204 @@ class Widgets {
     );
   }
 
-Widget eventsWidget() {
-  return StreamBuilder<List<EventApiResult>?>(
-    stream: _eventsStreamController.stream,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      }
+  Widget eventsWidget() {
+    return StreamBuilder<List<EventApiResult>?>(
+      stream: _eventsStreamController.stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-      if (snapshot.hasError || !snapshot.hasData) {
-        return Center(child: Text('Could not get events.'));
-      }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Center(child: Text('Could not get events.'));
+        }
 
-      final eventsList = snapshot.data!;
+        final eventsList = snapshot.data!;
 
-      if (eventsList.isEmpty) {
-        return Center(child: Text('No events found.'));
-      }
+        if (eventsList.isEmpty) {
+          return Center(child: Text('No events found.'));
+        }
 
-      return Container(
-        height: 300,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: eventsList.length,
-          itemBuilder: (context, index) {
-            final eventResult = eventsList[index];
-            if (eventResult.error != null) {
-              final errorDetail = eventResult.error!.errors!.isEmpty
-                  ? 'Unknown error'
-                  : eventResult.error!.errors![0].detail!;
-              return Container(
-                width: 200,
-                child: Center(
-                  child: Text('Error: $errorDetail'),
-                ),
-              );
-            } else {
-              final events = eventResult.data!.embedded!.events!;
-              return Row(
-                children: events.map((event) {
-                  return GestureDetector(
-                    onTap: () async {
-                      // if (event.url != null) {
-                      //   if (await canLaunch(event.url!)) {
-                      //     await launch(event.url!);
-                      //   } else {
-                      //     throw 'Could not launch ${event.url}';
-                      //   }
-                      // }
-                    },
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      margin: EdgeInsets.symmetric(horizontal: 8.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        image: DecorationImage(
-                          image: NetworkImage(
-                            event.images![0].url!,
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+        return Container(
+          height: 300,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: eventsList.length,
+            itemBuilder: (context, index) {
+              final eventResult = eventsList[index];
+              if (eventResult.error != null) {
+                final errorDetail = eventResult.error!.errors!.isEmpty
+                    ? 'Unknown error'
+                    : eventResult.error!.errors![0].detail!;
+                return Container(
+                  width: 200,
+                  child: Center(
+                    child: Text('Error: $errorDetail'),
+                  ),
+                );
+              } else {
+                final events = eventResult.data!.embedded!.events!;
+                return Row(
+                  children: events.map((event) {
+                    return GestureDetector(
+                      onTap: () async {
+                        // if (event.url != null) {
+                        //   if (await canLaunch(event.url!)) {
+                        //     await launch(event.url!);
+                        //   } else {
+                        //     throw 'Could not launch ${event.url}';
+                        //   }
+                        // }
+                        await showDialogWidget(context, event);
+                      },
                       child: Container(
+                        width: 300,
+                        height: 300,
+                        margin: EdgeInsets.symmetric(horizontal: 8.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: Colors.black.withOpacity(0.3),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                              event.images![0].url!,
+                            ),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Spacer(),
-                              Text(
-                                event.name ?? 'No name',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: "WorkSans",
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                child: Text(
-                                  "${_homeController.formatEventDate(event.dates!.start!.localDate!)} @ ${event.dates?.start?.localTime}",
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.black.withOpacity(0.3),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Spacer(),
+                                Text(
+                                  event.name ?? 'No name',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontFamily: "WorkSans",
-                                    fontSize: 15,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ),
-                            ],
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                  child: Text(
+                                    "${_homeController.formatEventDate(event.dates!.start!.localDate!)} @ ${event.dates?.start?.localTime}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "WorkSans",
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
+                    );
+                  }).toList(),
+                );
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> showDialogWidget(BuildContext context, Event event) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      event.name ?? 'No name',
+                      style: TextStyle(
+                          fontFamily: "WorkSans",
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold),
                     ),
-                  );
-                }).toList(),
-              );
-            }
-          },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 0, 10, 10),
+                    child: Text(
+                        "${event.embedded!.venues![0].name}, ${event.embedded!.venues![0].address!.line1}, ${event.embedded!.venues![0].address!.line2}",
+                        style: TextStyle(
+                          fontFamily: "WorkSans",
+                          fontSize: 20,
+                        )),
+                  ),
+                  venueMapWidget(
+                      event.embedded!.venues![0].location!.longitude!,
+                      event.embedded!.venues![0].location!.latitude!,
+                      context),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      "Powered by Ticketmaster Discovery API",
+                      style: TextStyle(
+                          fontFamily: "WorkSans",
+                          fontSize: 15,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey
+                          ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    child: Text('Close BottomSheet'),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget venueMapWidget(
+      String longitude, String latitude, BuildContext context) {
+    final double lat = double.parse(latitude);
+    final double lng = double.parse(longitude);
+    final LatLng location = LatLng(lat, lng);
+    // ignore: unused_local_variable
+    late GoogleMapController _controller;
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.3,
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: location,
+          zoom: 14.0,
         ),
-      );
-    },
-  );
-}
+        markers: {
+          Marker(
+            markerId: MarkerId('location_marker'),
+            position: location,
+          ),
+        },
+        onMapCreated: (controller) {
+          _controller = controller;
+        },
+      ),
+    );
+  }
 }
