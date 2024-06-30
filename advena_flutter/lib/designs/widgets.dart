@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:location/location.dart' as loc;
 
 class Widgets {
@@ -208,13 +209,6 @@ class Widgets {
                   children: events.map((event) {
                     return GestureDetector(
                       onTap: () async {
-                        // if (event.url != null) {
-                        //   if (await canLaunch(event.url!)) {
-                        //     await launch(event.url!);
-                        //   } else {
-                        //     throw 'Could not launch ${event.url}';
-                        //   }
-                        // }
                         await showDialogWidget(context, event);
                       },
                       child: Container(
@@ -323,13 +317,59 @@ class Widgets {
                           fontFamily: "WorkSans",
                           fontSize: 15,
                           fontStyle: FontStyle.italic,
-                          color: Colors.grey
-                          ),
+                          color: Colors.grey),
                     ),
                   ),
-                  ElevatedButton(
-                    child: Text('Close BottomSheet'),
-                    onPressed: () => Navigator.pop(context),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      "${_homeController.formatEventDate(event.dates!.start!.localDate!)} @ ${event.dates?.start?.localTime}",
+                      style: TextStyle(fontFamily: "WorkSans", fontSize: 20),
+                    ),
+                  ),
+                  Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            print('Book this event');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: HexColor('#1000FF'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                          ),
+                          child: Text(
+                            'Check out on Ticketmaster',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontFamily: "WorkSans"),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.close,
+                                color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
