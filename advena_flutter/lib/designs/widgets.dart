@@ -9,6 +9,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:location/location.dart' as loc;
+import 'package:url_launcher/url_launcher.dart';
 
 class Widgets {
   final Completer<GoogleMapController> _mapController =
@@ -333,8 +334,14 @@ class Widgets {
                     children: <Widget>[
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            print('Book this event');
+                          onPressed: () async {
+                            print(event.url!);
+                            if (event.url != null) {
+                              final Uri _url = Uri.parse(event.url!);
+                              if (!await launchUrl(_url)) {
+                                throw Exception('Could not launch $event.url');
+                              }
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: HexColor('#1000FF'),
@@ -364,8 +371,7 @@ class Widgets {
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            icon: Icon(Icons.close,
-                                color: Colors.black),
+                            icon: Icon(Icons.close, color: Colors.black),
                           ),
                         ),
                       ),
