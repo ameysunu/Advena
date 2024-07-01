@@ -191,7 +191,7 @@ class _HomeState extends State<Home> {
                             Icon(Icons.dashboard),
                             "Dashboard",
                             _selectedIndex == 0
-                                ? Colors.blueAccent
+                                ? HexColor("#6100FF")
                                 : Colors.blueGrey)),
                     InkWell(
                         onTap: () {
@@ -203,7 +203,7 @@ class _HomeState extends State<Home> {
                             Icon(Icons.search),
                             "Search",
                             _selectedIndex == 1
-                                ? Colors.blueAccent
+                                ? HexColor("#6100FF")
                                 : Colors.blueGrey)),
                     InkWell(
                         onTap: () {
@@ -215,7 +215,7 @@ class _HomeState extends State<Home> {
                             Icon(Icons.person),
                             "Account",
                             _selectedIndex == 2
-                                ? Colors.blueAccent
+                                ? HexColor("#6100FF")
                                 : Colors.blueGrey)),
                   ],
                 )),
