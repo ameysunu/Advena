@@ -40,8 +40,8 @@ class _HomeState extends State<Home> {
       DashboardView(
         user: widget.user,
       ),
-      RecommendationView(user: widget.user),
-      RecommendationView(user: widget.user),
+      RecommendationView(user: widget.user, isDay: isDay!,),
+      RecommendationView(user: widget.user, isDay: isDay!,),
     ];
 
     return Scaffold(
