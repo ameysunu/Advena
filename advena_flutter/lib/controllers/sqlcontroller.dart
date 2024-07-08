@@ -36,7 +36,7 @@ class SqlController {
     ''');
   }
 
-  Future<void> createTable(Database db, int version, String query) async {
+  Future<void> createTable(Database db, String query) async {
     await db.execute('''
       $query
     ''');
@@ -75,5 +75,13 @@ class SqlController {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<bool> isTableExists(String tableName) async {
+    final db = await database;
+    var result = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'",
+    );
+    return result.isNotEmpty;
   }
 }

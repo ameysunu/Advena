@@ -16,10 +16,10 @@ class RecommendationView extends StatefulWidget {
 }
 
 class _RecommendationViewState extends State<RecommendationView> {
-
-  RecommendationController _recommendationController = RecommendationController();
-  late Future<List<Map<String, dynamic>>> recommendationItems;
-  late Color textColor; 
+  RecommendationController _recommendationController =
+      RecommendationController();
+  late Future<bool> recommendationItems;
+  late Color textColor;
 
   @override
   void initState() {
@@ -42,33 +42,23 @@ class _RecommendationViewState extends State<RecommendationView> {
                 fontWeight: FontWeight.bold,
                 color: HexColor('#FFFFFF')),
           ),
-          Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: recommendationItems,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: textColor)));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No recommendations available', style: TextStyle(color: textColor)));
-                  } else {
-                    // Data is available, display it
-                    final items = snapshot.data!;
-                    return ListView.builder(
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        return ListTile(
-                          title: Text(item['title'] ?? 'No Title', style: TextStyle(color: textColor)),
-                          subtitle: Text(item['description'] ?? 'No Description', style: TextStyle(color: textColor)),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-            ),
+          FutureBuilder<bool>(
+            future: recommendationItems,
+            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (snapshot.hasData) {
+                bool isTrue = snapshot.data ?? false;
+                return Text(isTrue
+                    ? 'Show Recommendations'
+                    : 'Show screen asking for recommendation');
+              } else {
+                return Text('No data');
+              }
+            },
+          ),
         ],
       ),
     );
