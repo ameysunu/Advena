@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:advena_flutter/controllers/geohash.dart';
 import 'package:advena_flutter/controllers/home.dart';
+import 'package:advena_flutter/designs/recommendation.dart';
 import 'package:advena_flutter/models/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ class Widgets {
   Widgets() {
     _fetchLocationAndCityCountry();
   }
+
+  List<String> userInterests = [];
 
   Future<void> _fetchLocationAndCityCountry() async {
     try {
@@ -411,6 +414,126 @@ class Widgets {
           _controller = controller;
         },
       ),
+    );
+  }
+
+  Widget recommendationOption(BuildContext context, bool isDay) {
+    final Color textColor = isDay ? Colors.black : Colors.white;
+    //TextEditingController interestsController = TextEditingController();
+
+    return Container(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Text(
+              "Let's gather some details about yourself, before we can generate some recommendations.",
+              style: TextStyle(
+                  fontFamily: "WorkSans", fontSize: 15, color: textColor),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child: Container(
+                height: 50,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await showRecommendationList(context);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Get Started',
+                        style: TextStyle(
+                            fontFamily: 'WorkSans',
+                            fontSize: 15,
+                            color: HexColor('#FFFFFF')),
+                      ),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: HexColor('#6100FF'),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> showRecommendationList(BuildContext context) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "Interests",
+                    style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text("Please select interests that suit you",
+                      style: TextStyle(
+                          fontFamily: "WorkSans", fontWeight: FontWeight.bold)),
+                ),
+                Expanded(
+                  child: ListView(
+                    children: <Widget>[
+                      InterestsSelection(selectedInterests: userInterests,),
+                    ],
+                  ),
+                ),
+                            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              child: Container(
+                height: 50,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    print(userInterests);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Next',
+                        style: TextStyle(
+                            fontFamily: 'WorkSans',
+                            fontSize: 15,
+                            color: HexColor('#FFFFFF')),
+                      ),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: HexColor('#6100FF'),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                  ),
+                ),
+              ),
+            ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:advena_flutter/controllers/recommendation.dart';
+import 'package:advena_flutter/designs/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -16,8 +17,9 @@ class RecommendationView extends StatefulWidget {
 }
 
 class _RecommendationViewState extends State<RecommendationView> {
-  RecommendationController _recommendationController =
-      RecommendationController();
+  RecommendationController _recommendationController = RecommendationController();
+  // ignore: unused_field
+  Widgets _widgets = Widgets();
   late Future<bool> recommendationItems;
   late Color textColor;
 
@@ -51,9 +53,17 @@ class _RecommendationViewState extends State<RecommendationView> {
                 return Text('Error: ${snapshot.error}');
               } else if (snapshot.hasData) {
                 bool isTrue = snapshot.data ?? false;
-                return Text(isTrue
-                    ? 'Show Recommendations'
-                    : 'Show screen asking for recommendation');
+                // return Text(isTrue
+                //     ? 'Show Recommendations'
+                //     : 'Show screen asking for recommendation');
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: [
+                      isTrue ? Text("Show Recommendations", style: TextStyle(fontFamily: "WorkSans", color: textColor)) : _widgets.recommendationOption(context, widget.isDay)
+                    ],
+                  ),
+                );
               } else {
                 return Text('No data');
               }
