@@ -43,4 +43,19 @@ class LoginController {
     await _googleSignIn.signOut();
     await _auth.signOut();
   }
+
+    Future<List<dynamic>> registerUser(String email, String password, String confirmPassword) async {
+    try {
+
+      if(password != confirmPassword){
+        throw FirebaseAuthException(message: 'Passwords do not match', code: 'ERROR');
+      }
+
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+
+      return [true, userCredential.user];
+    } catch (e) {
+      throw FirebaseAuthException(message: e.toString(), code: 'ERROR');
+    }
+  }
 }

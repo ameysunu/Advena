@@ -1,22 +1,24 @@
 import 'package:advena_flutter/controllers/login.dart';
-import 'package:advena_flutter/views/register.dart';
+import 'package:advena_flutter/views/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 import 'home.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class Register extends StatefulWidget {
+  const Register({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<Register> createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
+class _RegisterState extends State<Register> {
   LoginController loginController = LoginController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   bool isLoading = false;
 
   @override
@@ -29,7 +31,7 @@ class _LoginState extends State<Login> {
             children: [
               Spacer(),
               Text(
-                'Advena.',
+                'Register for Advena.',
                 style: TextStyle(
                     fontFamily: 'WorkSans',
                     fontWeight: FontWeight.bold,
@@ -58,6 +60,16 @@ class _LoginState extends State<Login> {
                         labelText: "Password",
                         labelStyle: TextStyle(fontFamily: 'WorkSans')),
                   )),
+                                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: TextField(
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: "Confirm Password",
+                        labelStyle: TextStyle(fontFamily: 'WorkSans')),
+                  )),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                 child: Container(
@@ -70,11 +82,11 @@ class _LoginState extends State<Login> {
                           isLoading = true;
                         });
 
-                        List<dynamic> result = await loginController.loginUser(
-                            emailController.text, passwordController.text);
-                        bool isLogin = result[0];
+                        List<dynamic> result = await loginController.registerUser(
+                            emailController.text, passwordController.text, confirmPasswordController.text);
+                        bool isRegister = result[0];
                         User user = result[1];
-                        if (isLogin) {
+                        if (isRegister) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -91,11 +103,8 @@ class _LoginState extends State<Login> {
                             return AlertDialog(
                               ///backgroundColor: HexColor('#FBE4D8'),
                               title: Text(
-                                'Login Error',
-                                style: TextStyle(
-                                    fontFamily: 'WorkSans',
-                                    fontWeight: FontWeight.bold,
-                                    color: HexColor("#6100FF")),
+                                'Error',
+                                style: TextStyle(fontFamily: 'WorkSans', fontWeight: FontWeight.bold, color: HexColor("#6100FF")),
                               ),
                               content: Text(e.toString(),
                                   style: TextStyle(fontFamily: 'WorkSans')),
@@ -126,7 +135,7 @@ class _LoginState extends State<Login> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Login',
+                                'Register',
                                 style: TextStyle(
                                     fontFamily: 'WorkSans',
                                     fontSize: 15,
@@ -171,11 +180,12 @@ class _LoginState extends State<Login> {
                             return AlertDialog(
                               //backgroundColor: HexColor('#FBE4D8'),
                               title: Text(
-                                'Login Error',
+                                'Error',
                                 style: TextStyle(
                                     fontFamily: 'WorkSans',
                                     fontWeight: FontWeight.bold,
-                                    color: HexColor("#FFFFFF")),
+                                    color: HexColor("#FFFFFF")
+                                    ),
                               ),
                               content: Text(e.toString(),
                                   style: TextStyle(fontFamily: 'WorkSans')),
@@ -196,7 +206,7 @@ class _LoginState extends State<Login> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Sign in with Google',
+                          'Sign up with Google',
                           style: TextStyle(
                               fontFamily: 'WorkSans',
                               fontSize: 15,
@@ -217,7 +227,7 @@ class _LoginState extends State<Login> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          Scaffold(body: SafeArea(child: Register())),
+                          Scaffold(body: SafeArea(child: Login())),
                     ),
                   );
                 },
@@ -225,7 +235,7 @@ class _LoginState extends State<Login> {
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: Center(
                     child: Text(
-                      'Don\'t have an account? Sign up.',
+                      'Have an account? Sign in',
                       style: TextStyle(
                           fontFamily: 'WorkSans',
                           fontSize: 15,
