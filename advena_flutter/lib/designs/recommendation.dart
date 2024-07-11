@@ -1,3 +1,6 @@
+import 'package:advena_flutter/controllers/recommendation.dart';
+import 'package:advena_flutter/models/recommendation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -112,6 +115,10 @@ class InterestPill extends StatelessWidget {
 
 class RecommendationWidgets {
   List<String> userInterests = [];
+  User user;
+  late SocialPreferences socialPreferences;
+
+  RecommendationWidgets(this.user);
 
   Widget recommendationOption(BuildContext context, bool isDay) {
     final Color textColor = isDay ? Colors.black : Colors.white;
@@ -133,7 +140,7 @@ class RecommendationWidgets {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    await showRecommendationList(context);
+                    await showRecommendationList(context, user);
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -161,12 +168,16 @@ class RecommendationWidgets {
     );
   }
 
-  Future<void> showRecommendationList(BuildContext context) {
+  Future<void> showRecommendationList(BuildContext context, User user) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return _RecommendationFormState(userInterests: userInterests);
+        return _RecommendationFormState(
+          userInterests: userInterests,
+          user: user,
+          socialPreferences: socialPreferences,
+        );
       },
     );
   }
@@ -175,7 +186,14 @@ class RecommendationWidgets {
 // ignore: must_be_immutable
 class _RecommendationFormState extends StatefulWidget {
   List<String> userInterests = [];
-  _RecommendationFormState({Key? key, required this.userInterests})
+  User? user;
+  SocialPreferences socialPreferences;
+
+  _RecommendationFormState(
+      {Key? key,
+      required this.userInterests,
+      this.user,
+      required this.socialPreferences})
       : super(key: key);
 
   @override
@@ -185,9 +203,11 @@ class _RecommendationFormState extends StatefulWidget {
 
 class __RecommendationFormStateState extends State<_RecommendationFormState> {
   int pageTracker = 0;
+  SocialPreferences socialPreferences = new SocialPreferences();
   String _diningCompanion = 'Alone';
   int _groupSize = 1;
   String _socializingPreference = 'Quiet';
+  late final RecommendationController _recommendationController;
 
   Widget interestsWidget() {
     return SizedBox(
@@ -461,11 +481,23 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
                 height: 50,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    print("SUBMITTED");
-                    setState(() {
-                      pageTracker = 3;
-                    });
+                  onPressed: () async {
+                    
+                    socialPreferences.diningCompanion = _diningCompanion;
+                    socialPreferences.groupSize = _groupSize;
+                    socialPreferences.socializingPreference = _socializingPreference;
+
+                    _recommendationController =
+                        RecommendationController(widget.user);
+                    var isSubmitted = await _recommendationController
+                        .recommendationFormOnSubmit(
+                            widget.userInterests, widget.socialPreferences);
+                    if (isSubmitted) {
+                      print(isSubmitted);
+                      setState(() {
+                        pageTracker = 3;
+                      });
+                    }
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

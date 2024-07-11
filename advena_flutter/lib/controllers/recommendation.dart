@@ -1,3 +1,4 @@
+import 'package:advena_flutter/models/recommendation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,5 +19,20 @@ class RecommendationController {
       }
     });
     return false;
+  }
+
+  Future<bool> recommendationFormOnSubmit(
+      List<String> interests, SocialPreferences socialPreferences) async {
+    try {
+      print(user!.uid);
+      _firestore.collection('recommendations').doc(user!.uid).set(
+          {'interests': interests, 'socialPreferences': socialPreferences},
+          SetOptions(merge: true));
+
+      return true;
+    } catch (e) {
+      print("Exception caught $e");
+      throw Exception("Exception caught $e");
+    }
   }
 }
