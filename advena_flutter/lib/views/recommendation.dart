@@ -18,13 +18,14 @@ class RecommendationView extends StatefulWidget {
 class _RecommendationViewState extends State<RecommendationView> {
   late RecommendationController _recommendationController;
   // ignore: unused_field
-  RecommendationWidgets _widgets = RecommendationWidgets();
+  late RecommendationWidgets _widgets;
   late Future<bool> recommendationItems;
   late Color textColor;
 
   @override
   void initState() {
     super.initState();
+    _widgets = RecommendationWidgets(widget.user!);
     _recommendationController = RecommendationController(widget.user);
     textColor = widget.isDay ? Colors.black : Colors.white;
     recommendationItems = _recommendationController.onLoadRecommendation();
