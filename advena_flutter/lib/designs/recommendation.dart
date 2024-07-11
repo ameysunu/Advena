@@ -116,7 +116,7 @@ class InterestPill extends StatelessWidget {
 class RecommendationWidgets {
   List<String> userInterests = [];
   User user;
-  late SocialPreferences socialPreferences;
+  SocialPreferences socialPreferences = new SocialPreferences();
 
   RecommendationWidgets(this.user);
 
@@ -414,8 +414,11 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    print(
-                        "$_diningCompanion, $_groupSize, $_socializingPreference");
+                    
+                    socialPreferences.dining = _diningCompanion;
+                    socialPreferences.groupSize = _groupSize;
+                    socialPreferences.socializing = _socializingPreference;
+
                     setState(() {
                       pageTracker = 2;
                     });
@@ -482,16 +485,12 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    
-                    socialPreferences.diningCompanion = _diningCompanion;
-                    socialPreferences.groupSize = _groupSize;
-                    socialPreferences.socializingPreference = _socializingPreference;
 
                     _recommendationController =
                         RecommendationController(widget.user);
                     var isSubmitted = await _recommendationController
                         .recommendationFormOnSubmit(
-                            widget.userInterests, widget.socialPreferences);
+                            widget.userInterests, socialPreferences);
                     if (isSubmitted) {
                       print(isSubmitted);
                       setState(() {

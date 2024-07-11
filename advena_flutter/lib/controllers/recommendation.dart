@@ -26,7 +26,7 @@ class RecommendationController {
     try {
       print(user!.uid);
       _firestore.collection('recommendations').doc(user!.uid).set(
-          {'interests': interests, 'socialPreferences': socialPreferences},
+          {'interests': interests, 'socialPreferences': socialPreferences.toJson()},
           SetOptions(merge: true));
 
       return true;
