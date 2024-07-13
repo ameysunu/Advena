@@ -414,7 +414,6 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    
                     socialPreferences.dining = _diningCompanion;
                     socialPreferences.groupSize = _groupSize;
                     socialPreferences.socializing = _socializingPreference;
@@ -485,7 +484,6 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-
                     _recommendationController =
                         RecommendationController(widget.user);
                     var isSubmitted = await _recommendationController
