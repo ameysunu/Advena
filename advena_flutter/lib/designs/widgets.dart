@@ -413,4 +413,72 @@ class Widgets {
       ),
     );
   }
+
+  Widget checkInWidget(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.3,
+      child: Row(children: [
+        GestureDetector(
+          onTap: () {
+            print("object");
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: 100,
+            margin: EdgeInsets.symmetric(horizontal: 8.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [
+                  HexColor("#6100FF"),
+                  HexColor("#7D52FA"),
+                  HexColor("#987FF0"),
+                  HexColor("#B2A7E1"),
+                  HexColor("#CDCDCD"),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.black.withOpacity(0.3),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Spacer(),
+                    Text(
+                      'Check in',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: "WorkSans",
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                      child: Text(
+                        "Let your friend know when you've reached home safely",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: "WorkSans",
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
 }
