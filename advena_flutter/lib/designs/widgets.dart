@@ -419,8 +419,8 @@ class Widgets {
       height: MediaQuery.of(context).size.height * 0.3,
       child: Row(children: [
         GestureDetector(
-          onTap: () {
-            print("object");
+          onTap: () async {
+            await showCheckInWidget(context);
           },
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
@@ -479,6 +479,89 @@ class Widgets {
           ),
         ),
       ]),
+    );
+  }
+
+  Future<void> showCheckInWidget(BuildContext context) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      "Check in",
+                      style: TextStyle(
+                          fontFamily: "WorkSans",
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 0, 10, 10),
+                    child: Text("Test",
+                        style: TextStyle(
+                          fontFamily: "WorkSans",
+                          fontSize: 20,
+                        )),
+                  ),
+                  Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            print("ELEVA");
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: HexColor('#1000FF'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                          ),
+                          child: Text(
+                            'Check-in',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontFamily: "WorkSans"),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.close, color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
