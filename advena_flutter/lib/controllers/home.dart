@@ -80,55 +80,59 @@ class HomeController {
     return 'Error: No image selected';
   }
 
-Future<EventApiResult> getEventsFromTicketMaster(String geoHash, String pageNumber) async {
-  List<String> dateTimes = startEndDateTime();
+  Future<EventApiResult> getEventsFromTicketMaster(
+      String geoHash, String pageNumber) async {
+    List<String> dateTimes = startEndDateTime();
 
-  final String url =
-      'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=$ticketMasterApi&geoPoint=${geoHash}&page=$pageNumber&startDateTime=${dateTimes[0]}&endDateTime=${dateTimes[1]}';
-  print(url);
-  try {
-    final response = await http.get(Uri.parse(url));
+    final String url =
+        'https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=$ticketMasterApi&geoPoint=${geoHash}&page=$pageNumber&startDateTime=${dateTimes[0]}&endDateTime=${dateTimes[1]}';
+    print(url);
+    try {
+      final response = await http.get(Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return EventApiResult(data: EventApiResponse.fromJson(data));
-    } else {
-      final data = json.decode(response.body);
-      return EventApiResult(error: EventApiErrorResponse.fromJson(data));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return EventApiResult(data: EventApiResponse.fromJson(data));
+      } else {
+        final data = json.decode(response.body);
+        return EventApiResult(error: EventApiErrorResponse.fromJson(data));
+      }
+    } catch (error) {
+      return EventApiResult(
+          error: EventApiErrorResponse(
+              errors: [ErrorDetail(detail: 'Error fetching data: $error')]));
     }
-  } catch (error) {
-    return EventApiResult(error: EventApiErrorResponse(errors: [ErrorDetail(detail: 'Error fetching data: $error')]));
   }
-}
 
-String formatEventDate(String dateString) {
-  DateTime dateTime = DateTime.parse(dateString);
+  String formatEventDate(String dateString) {
+    DateTime dateTime = DateTime.parse(dateString);
 
-  String day = dateTime.day.toString();
-  String daySuffix = 'th';
-  if (day.endsWith('1') && !day.endsWith('11')) {
-    daySuffix = 'st';
-  } else if (day.endsWith('2') && !day.endsWith('12')) {
-    daySuffix = 'nd';
-  } else if (day.endsWith('3') && !day.endsWith('13')) {
-    daySuffix = 'rd';
+    String day = dateTime.day.toString();
+    String daySuffix = 'th';
+    if (day.endsWith('1') && !day.endsWith('11')) {
+      daySuffix = 'st';
+    } else if (day.endsWith('2') && !day.endsWith('12')) {
+      daySuffix = 'nd';
+    } else if (day.endsWith('3') && !day.endsWith('13')) {
+      daySuffix = 'rd';
+    }
+    String formattedDay = day + daySuffix;
+
+    String formattedMonth = DateFormat('MMMM').format(dateTime);
+    String formattedYear = dateTime.year.toString();
+
+    return '$formattedDay $formattedMonth $formattedYear';
   }
-  String formattedDay = day + daySuffix;
 
-  String formattedMonth = DateFormat('MMMM').format(dateTime);
-  String formattedYear = dateTime.year.toString();
+  List<String> startEndDateTime() {
+    DateTime dateTime = DateTime.now().toUtc();
+    DateTime tomorrow = dateTime.add(Duration(days: 90));
 
-  return '$formattedDay $formattedMonth $formattedYear';
-}
+    String formattedDate =
+        DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(dateTime);
+    String formattedEndDate =
+        DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(tomorrow);
 
-List<String> startEndDateTime() {
-  DateTime dateTime = DateTime.now().toUtc();
-  DateTime tomorrow = dateTime.add(Duration(days: 90));
-
-  String formattedDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(dateTime);
-  String formattedEndDate = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(tomorrow);
-
-  return [formattedDate, formattedEndDate];
-}
-
+    return [formattedDate, formattedEndDate];
+  }
 }
