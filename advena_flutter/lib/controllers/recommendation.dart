@@ -35,4 +35,21 @@ class RecommendationController {
       throw Exception("Exception caught $e");
     }
   }
+
+  Future<String> getCurrentUserFriends() async {
+    try {
+      final docRef = _firestore.collection("cities").doc("SF");
+      docRef.get().then(
+        (DocumentSnapshot doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return "$data Data";
+        },
+      );
+    } catch (e) {
+      print("Exception caught $e");
+      return "Exception caught $e";
+    }
+
+    return "null";
+  }
 }
