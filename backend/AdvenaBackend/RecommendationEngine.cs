@@ -21,15 +21,15 @@ namespace AdvenaBackend
 
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            RecommendationPayloadData data = JsonConvert.DeserializeObject<RecommendationPayloadData>(requestBody);
 
-            if(data == null)
+            if (data == null)
             {
                 return new BadRequestObjectResult(new { error = "Payload cannot be null" });
             }
 
-            var userId = data.userId;
-            return new OkObjectResult($"Welcome to Azure Functions {userId}");
+            return new OkObjectResult($"Welcome to Azure Functions {data.userId}");
         }
+
     }
 }
