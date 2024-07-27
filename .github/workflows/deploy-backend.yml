@@ -28,6 +28,7 @@ jobs:
         
     - name: Build and publish
       run: |
+        cd backend/AdvenaBackend
         dotnet publish -c Release -o $GITHUB_WORKSPACE/myapp
         
     - name: Deploy to Azure Functions
