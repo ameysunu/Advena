@@ -1,6 +1,7 @@
 import 'package:advena_flutter/controllers/home.dart';
 import 'package:advena_flutter/designs/home.dart';
 import 'package:advena_flutter/views/dashboard.dart';
+import 'package:advena_flutter/views/meetview.dart';
 import 'package:advena_flutter/views/recommendation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +41,11 @@ class _HomeState extends State<Home> {
       DashboardView(
         user: widget.user,
       ),
-      RecommendationView(user: widget.user, isDay: isDay!,),
-      RecommendationView(user: widget.user, isDay: isDay!,),
+      RecommendationView(
+        user: widget.user,
+        isDay: isDay!,
+      ),
+      MeetView(),
     ];
 
     return Scaffold(
@@ -92,8 +96,8 @@ class _HomeState extends State<Home> {
                           });
                         },
                         child: navbarItems(
-                            Icon(Icons.person),
-                            "Account",
+                            Icon(Icons.batch_prediction_rounded),
+                            "Meetup",
                             _selectedIndex == 2
                                 ? Colors.blueAccent
                                 : Colors.blueGrey)),

@@ -19,7 +19,7 @@ class _RecommendationViewState extends State<RecommendationView> {
   late RecommendationController _recommendationController;
   // ignore: unused_field
   late RecommendationWidgets _widgets;
-  late Future<bool> recommendationItems;
+  late Stream<bool> recommendationItems;
   late Color textColor;
 
   @override
@@ -45,8 +45,8 @@ class _RecommendationViewState extends State<RecommendationView> {
                 fontWeight: FontWeight.bold,
                 color: HexColor('#FFFFFF')),
           ),
-          FutureBuilder<bool>(
-            future: recommendationItems,
+          StreamBuilder<bool>(
+            stream: recommendationItems,
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
@@ -65,7 +65,8 @@ class _RecommendationViewState extends State<RecommendationView> {
                           ? Text("Show Recommendations",
                               style: TextStyle(
                                   fontFamily: "WorkSans", color: textColor))
-                          : _widgets.recommendationOption(context, widget.isDay)
+                          : _widgets.recommendationOption(
+                              context, widget.isDay),
                     ],
                   ),
                 );

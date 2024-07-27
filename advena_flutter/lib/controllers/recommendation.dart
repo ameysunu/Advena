@@ -8,31 +8,48 @@ class RecommendationController {
 
   RecommendationController(this.user);
 
-  Future<bool> onLoadRecommendation() async {
-    final recommendations =
-        _firestore.collection("recommendations").doc(user!.uid);
-
-    recommendations.get().then((DocumentSnapshot snapshot) {
+  Stream<bool> onLoadRecommendation() {
+    return _firestore
+        .collection("recommendations")
+        .doc(user!.uid)
+        .snapshots()
+        .map((snapshot) {
       final data = snapshot.data() as Map<String, dynamic>?;
-      if (data != null) {
-        return true;
-      }
+      print("Data $data");
+      return data != null;
     });
-    return false;
   }
 
   Future<bool> recommendationFormOnSubmit(
       List<String> interests, SocialPreferences socialPreferences) async {
     try {
       print(user!.uid);
-      _firestore.collection('recommendations').doc(user!.uid).set(
-          {'interests': interests, 'socialPreferences': socialPreferences.toJson()},
-          SetOptions(merge: true));
+      _firestore.collection('recommendations').doc(user!.uid).set({
+        'interests': interests,
+        'socialPreferences': socialPreferences.toJson()
+      }, SetOptions(merge: true));
 
       return true;
     } catch (e) {
       print("Exception caught $e");
       throw Exception("Exception caught $e");
     }
+  }
+
+  Future<String> getCurrentUserFriends() async {
+    try {
+      final docRef = _firestore.collection("cities").doc("SF");
+      docRef.get().then(
+        (DocumentSnapshot doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return "$data Data";
+        },
+      );
+    } catch (e) {
+      print("Exception caught $e");
+      return "Exception caught $e";
+    }
+
+    return "null";
   }
 }
