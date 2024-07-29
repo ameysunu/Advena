@@ -50,7 +50,7 @@ namespace AdvenaBackend
                 return new BadRequestObjectResult(new { error = geminiResults });
             }
 
-            WriteDataToFirestore(configuration, data);
+            WriteDataToFirestore(configuration, data, geminiResults);
 
             return new OkObjectResult(geminiResults);
         }
@@ -130,7 +130,7 @@ namespace AdvenaBackend
             }
         }
 
-        public static async void WriteDataToFirestore(IConfigurationRoot config, RecommendationPayloadData recData)
+        public static async void WriteDataToFirestore(IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult)
         {
             var fireStoreKeyBase64 = config["FIREBASE_SDK_SERVICE_KEY"];
             var serviceAccountKey = Encoding.UTF8.GetString(Convert.FromBase64String(fireStoreKeyBase64));
@@ -138,7 +138,7 @@ namespace AdvenaBackend
 
             Dictionary<string, object> data = new Dictionary<string, object>
             {
-                { "Test", "Test" },
+                { "GeminiResult", geminiResult },
             };
 
             await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
