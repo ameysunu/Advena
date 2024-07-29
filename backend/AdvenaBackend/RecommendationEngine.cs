@@ -30,16 +30,17 @@ namespace AdvenaBackend
             {
                 return new BadRequestObjectResult(new { error = "Payload cannot be null" });
             }
+            bool isInterests = data.isInterests;
 
-            String interestsJsonPayload = QueryPreparerForGemini(log, data, true);
-            String geminiInterests = await GetDataFromGemini(log, interestsJsonPayload);
+            String jsonPayload = QueryPreparerForGemini(log, data, isInterests);
+            String geminiResults = await GetDataFromGemini(log, jsonPayload);
 
-            if (geminiInterests.Contains("Error"))
+            if (geminiResults.Contains("Error"))
             {
-                return new BadRequestObjectResult(new { error = geminiInterests });
+                return new BadRequestObjectResult(new { error = geminiResults });
             }
 
-            return new OkObjectResult($"Welcome to Azure Functions {data.userId}");
+            return new OkObjectResult(geminiResults);
         }
 
         public static String QueryPreparerForGemini(ILogger logger, RecommendationPayloadData data, bool isInterests)

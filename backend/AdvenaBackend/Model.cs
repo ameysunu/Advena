@@ -10,6 +10,7 @@ namespace AdvenaBackend
     {
        public String userId {  get; set; }
        public String userLocation { get; set; }
+       public bool isInterests { get; set; }
        public List<String> interests { get; set; }
        public SocialPreferences socialPreferences {  get; set; }
     }
