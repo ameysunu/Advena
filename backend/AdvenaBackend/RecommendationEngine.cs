@@ -54,7 +54,7 @@ namespace AdvenaBackend
                 logger.LogInformation("Query type is of interests");
 
                 String interests = String.Join(",", data.interests);
-                userTextContent = $"Suggest me top 10 places in {country} for my interests: {interests}";
+                userTextContent = $"Suggest me top 10 places in {country} for my interests: {interests} along with their location in url";
             } else
             {
                 logger.LogInformation("Query type is of social preferences");
@@ -63,7 +63,7 @@ namespace AdvenaBackend
                 String groupSize = data.socialPreferences.groupSize.ToString();
                 String socializing = data.socialPreferences.socializing;
 
-                userTextContent = $"Suggest me top 10 places in {country} that incorporate my social preferences as - dining: {dining}, my group size: {groupSize} and my socializing type of being {socializing}";
+                userTextContent = $"Suggest me top 10 places in {country} that incorporate my social preferences as - dining: {dining}, my group size: {groupSize} and my socializing type of being {socializing} along with their location in url";
             }
 
             return $@"
