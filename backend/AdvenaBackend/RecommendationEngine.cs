@@ -171,7 +171,16 @@ namespace AdvenaBackend
         private static async Task AddDocumentToFirestore(FirestoreDb firestoreDb, string collectionName, string documentId, Dictionary<string, object> data)
         {
             DocumentReference docRef = firestoreDb.Collection(collectionName).Document(documentId);
-            await docRef.CreateAsync(data);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (snapshot.Exists)
+            {
+                await docRef.UpdateAsync(data);
+            }
+            else
+            {
+                await docRef.SetAsync(data);
+            }
         }
 
     }
