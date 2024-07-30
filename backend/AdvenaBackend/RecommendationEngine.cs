@@ -59,7 +59,7 @@ namespace AdvenaBackend
         {
             String userTextContent = "";
             String country = data.userLocation;
-            String interestsQueryPostFix = "Return the data as a Json with the details: title, description, location and also generate an image and store it as an encoded data in the image variable";
+            String interestsQueryPostFix = "Return the data as a Json with the details: title, description, location and address";
 
             if (isInterests)
             {
