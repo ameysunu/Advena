@@ -50,7 +50,7 @@ namespace AdvenaBackend
                 return new BadRequestObjectResult(new { error = geminiResults });
             }
 
-            WriteDataToFirestore(configuration, data, geminiResults);
+            WriteDataToFirestore(configuration, data, geminiResults, isInterests);
 
             return new OkObjectResult(geminiResults);
         }
@@ -59,6 +59,7 @@ namespace AdvenaBackend
         {
             String userTextContent = "";
             String country = data.userLocation;
+            String interestsQueryPostFix = "Return the data as a Json with the details: title, description, location and also generate an image and store it as an encoded data in the image variable";
 
             if (isInterests)
             {
@@ -66,7 +67,7 @@ namespace AdvenaBackend
                 logger.LogInformation("Query type is of interests");
 
                 String interests = String.Join(",", data.interests);
-                userTextContent = $"Suggest me top 10 places in {country} for my interests: {interests} along with their location in url";
+                userTextContent = $"Suggest me top 10 places in {country} for my interests: {interests}. {interestsQueryPostFix}";
             } else
             {
                 logger.LogInformation("Query type is of social preferences");
@@ -130,16 +131,21 @@ namespace AdvenaBackend
             }
         }
 
-        public static async void WriteDataToFirestore(IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult)
+        public static async void WriteDataToFirestore(IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
         {
             var fireStoreKeyBase64 = config["FIREBASE_SDK_SERVICE_KEY"];
             var serviceAccountKey = Encoding.UTF8.GetString(Convert.FromBase64String(fireStoreKeyBase64));
             FirestoreDb firestoreDb = await InitializeFirestoreDb(serviceAccountKey);
 
-            Dictionary<string, object> data = new Dictionary<string, object>
+            Dictionary<string, object> data = new Dictionary<string, object>();
+
+            if (isInterests)
             {
-                { "GeminiResult", geminiResult },
-            };
+                data.Add("geminiInterests", geminiResult);
+            } else
+            {
+                data.Add("geminiSocialPreferences", geminiResult);
+            }
 
             await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
         }
