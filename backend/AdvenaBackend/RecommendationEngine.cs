@@ -10,6 +10,11 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Text;
+using Google.Cloud.Firestore;
+using Google.Apis.Auth.OAuth2;
+using System.Collections.Generic;
+using Google.Cloud.Firestore.V1;
+using Grpc.Auth;
 
 namespace AdvenaBackend
 {
@@ -22,6 +27,11 @@ namespace AdvenaBackend
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
+            var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             RecommendationPayloadData data = JsonConvert.DeserializeObject<RecommendationPayloadData>(requestBody);
@@ -33,12 +43,14 @@ namespace AdvenaBackend
             bool isInterests = data.isInterests;
 
             String jsonPayload = QueryPreparerForGemini(log, data, isInterests);
-            String geminiResults = await GetDataFromGemini(log, jsonPayload);
+            String geminiResults = await GetDataFromGemini(log, jsonPayload, configuration);
 
             if (geminiResults.Contains("Error"))
             {
                 return new BadRequestObjectResult(new { error = geminiResults });
             }
+
+            WriteDataToFirestore(configuration, data, geminiResults, isInterests);
 
             return new OkObjectResult(geminiResults);
         }
@@ -47,6 +59,7 @@ namespace AdvenaBackend
         {
             String userTextContent = "";
             String country = data.userLocation;
+            String interestsQueryPostFix = "Return the data as a Json with the details: title, description, location and address";
 
             if (isInterests)
             {
@@ -54,7 +67,7 @@ namespace AdvenaBackend
                 logger.LogInformation("Query type is of interests");
 
                 String interests = String.Join(",", data.interests);
-                userTextContent = $"Suggest me top 10 places in {country} for my interests: {interests} along with their location in url";
+                userTextContent = $"Suggest me top 10 places in {country} for my interests: {interests}. {interestsQueryPostFix}";
             } else
             {
                 logger.LogInformation("Query type is of social preferences");
@@ -80,15 +93,9 @@ namespace AdvenaBackend
         }}";
         }
         
-        public static async Task<String> GetDataFromGemini(ILogger log, String payload)
+        public static async Task<String> GetDataFromGemini(ILogger log, String payload, IConfiguration configuration)
         {
             log.LogInformation("Preparing to send data to Gemini");
-
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables()
-                .Build();
 
             String geminiEndPoint = configuration["GEMINI_ENDPOINT"];
             String geminiApiKey = configuration["GEMINI_API_KEY"];
@@ -122,6 +129,49 @@ namespace AdvenaBackend
                     return "Error: " + responseBody;
                 }
             }
+        }
+
+        public static async void WriteDataToFirestore(IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
+        {
+            var fireStoreKeyBase64 = config["FIREBASE_SDK_SERVICE_KEY"];
+            var serviceAccountKey = Encoding.UTF8.GetString(Convert.FromBase64String(fireStoreKeyBase64));
+            FirestoreDb firestoreDb = await InitializeFirestoreDb(serviceAccountKey);
+
+            Dictionary<string, object> data = new Dictionary<string, object>();
+
+            if (isInterests)
+            {
+                data.Add("geminiInterests", geminiResult);
+            } else
+            {
+                data.Add("geminiSocialPreferences", geminiResult);
+            }
+
+            await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+        }
+
+        private static async Task<FirestoreDb> InitializeFirestoreDb(string serviceAccountKey)
+        {
+            GoogleCredential credential;
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(serviceAccountKey)))
+            {
+                credential = GoogleCredential.FromStream(stream);
+            }
+
+            FirestoreClientBuilder firestoreClientBuilder = new FirestoreClientBuilder
+            {
+                ChannelCredentials = credential.ToChannelCredentials()
+            };
+
+            FirestoreClient firestoreClient = await firestoreClientBuilder.BuildAsync();
+            FirestoreDb firestoreDb = FirestoreDb.Create("ios-project-11c34", firestoreClient);
+            return firestoreDb;
+        }
+
+        private static async Task AddDocumentToFirestore(FirestoreDb firestoreDb, string collectionName, string documentId, Dictionary<string, object> data)
+        {
+            DocumentReference docRef = firestoreDb.Collection(collectionName).Document(documentId);
+            await docRef.SetAsync(data, SetOptions.MergeAll);
         }
 
     }
