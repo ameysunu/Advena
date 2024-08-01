@@ -141,6 +141,10 @@ namespace AdvenaBackend
 
             if (isInterests)
             {
+                if(geminiResult.Contains("```json ["))
+                {
+                    geminiResult.Replace("```json [", "").Replace("]```", "");
+                }
                 data.Add("geminiInterests", geminiResult);
             } else
             {
