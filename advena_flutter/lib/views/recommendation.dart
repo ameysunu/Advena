@@ -62,7 +62,7 @@ class _RecommendationViewState extends State<RecommendationView> {
                   child: Column(
                     children: [
                       isTrue
-                          ? _widgets.geminiRecommendations(
+                          ? _widgets.geminiRecommendationWidgets(
                               context, widget.isDay)
                           : _widgets.recommendationOption(
                               context, widget.isDay),

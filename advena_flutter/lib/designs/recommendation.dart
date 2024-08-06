@@ -169,6 +169,29 @@ class RecommendationWidgets {
     );
   }
 
+  Widget geminiRecommendationWidgets(BuildContext context, bool isDay) {
+    final Color textColor = isDay ? Colors.black : Colors.white;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+            child: Text("Recommended Interests ✨",
+                style: TextStyle(
+                    color: textColor,
+                    fontFamily: "WorkSans",
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
+          ),
+          geminiRecommendations(context, isDay)
+        ],
+      ),
+    );
+  }
+
   Widget geminiRecommendations(BuildContext context, bool isDay) {
     final Color textColor = isDay ? Colors.black : Colors.white;
     Stream<DocumentSnapshot> _geminiStream = FirebaseFirestore.instance
@@ -206,16 +229,72 @@ class RecommendationWidgets {
 
         Map<String, dynamic> data =
             snapshot.data!.data()! as Map<String, dynamic>;
+        RecommendationController _recommendationController =
+            new RecommendationController(user);
+        List<GeminiInterestsResponse>? geminiInterests =
+            _recommendationController
+                .sanitizeGeminiInterestsJson(data['geminiInterests']);
 
-        return Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Data found")
-              // Text('${data['geminiInterests']}',
-              //     style: TextStyle(color: textColor)),
-            ],
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: geminiInterests!.map((interest) {
+              return GestureDetector(
+                onTap: () async {
+                  //await showDialogWidget(context, event);
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  margin: EdgeInsets.symmetric(horizontal: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        "https://images.unsplash.com/photo-1722486110900-cfb036cf1830?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Spacer(),
+                          Text(
+                            interest.title ?? 'No name',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: "WorkSans",
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            child: Text(
+                              "${interest.location}",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "WorkSans",
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         );
       },
