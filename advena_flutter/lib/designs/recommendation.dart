@@ -1,5 +1,6 @@
 import 'package:advena_flutter/controllers/recommendation.dart';
 import 'package:advena_flutter/models/recommendation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -165,6 +166,59 @@ class RecommendationWidgets {
           ],
         ),
       ),
+    );
+  }
+
+  Widget geminiRecommendations(BuildContext context, bool isDay) {
+    final Color textColor = isDay ? Colors.black : Colors.white;
+    Stream<DocumentSnapshot> _geminiStream = FirebaseFirestore.instance
+        .collection('geminidata')
+        .doc(user.uid)
+        .snapshots();
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _geminiStream,
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong',
+              style: TextStyle(color: textColor));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading...",
+              style: TextStyle(
+                  color: textColor,
+                  fontFamily: "WorkSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold));
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text(
+              '✨ Hold on, Gemini is optimizing and learning your recommendation. This will be available to you shortly ✨',
+              style: TextStyle(
+                  color: textColor,
+                  fontFamily: "WorkSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold));
+        }
+
+        Map<String, dynamic> data =
+            snapshot.data!.data()! as Map<String, dynamic>;
+
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Data found")
+              // Text('${data['geminiInterests']}',
+              //     style: TextStyle(color: textColor)),
+            ],
+          ),
+        );
+      },
     );
   }
 
