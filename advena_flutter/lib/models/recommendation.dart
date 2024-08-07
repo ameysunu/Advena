@@ -21,3 +21,30 @@ class SocialPreferences {
     };
   }
 }
+
+class GeminiInterestsResponse {
+  String? title;
+  String? description;
+  String? location;
+  String? address;
+
+  GeminiInterestsResponse(
+      {this.title, this.description, this.location, this.address});
+
+  factory GeminiInterestsResponse.fromJson(Map<String, dynamic> json) {
+    return GeminiInterestsResponse(
+        title: json['title'],
+        description: json['description'],
+        location: json['location'],
+        address: json['address']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'location': location,
+      'address': address
+    };
+  }
+}

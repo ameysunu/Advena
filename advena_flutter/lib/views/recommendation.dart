@@ -62,9 +62,8 @@ class _RecommendationViewState extends State<RecommendationView> {
                   child: Column(
                     children: [
                       isTrue
-                          ? Text("Show Recommendations",
-                              style: TextStyle(
-                                  fontFamily: "WorkSans", color: textColor))
+                          ? _widgets.geminiRecommendationWidgets(
+                              context, widget.isDay)
                           : _widgets.recommendationOption(
                               context, widget.isDay),
                     ],
