@@ -45,14 +45,21 @@ namespace AdvenaBackend
             String jsonPayload = QueryPreparerForGemini(log, data, isInterests);
             String geminiResults = await GetDataFromGemini(log, jsonPayload, configuration);
 
+
             if (geminiResults.Contains("Error"))
             {
                 return new BadRequestObjectResult(new { error = geminiResults });
             }
 
-            WriteDataToFirestore(configuration, data, geminiResults, isInterests);
+            var isWriteSuccess = await WriteDataToFirestore(log, configuration, data, geminiResults, isInterests);
+            
+            if (isWriteSuccess)
+            {
+                return new OkObjectResult("Recommendation Engine successfully processed all data");
+            }
 
-            return new OkObjectResult(geminiResults);
+            return new OkObjectResult("Done");
+            
         }
 
         public static String QueryPreparerForGemini(ILogger logger, RecommendationPayloadData data, bool isInterests)
@@ -131,23 +138,60 @@ namespace AdvenaBackend
             }
         }
 
-        public static async void WriteDataToFirestore(IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
+        public static async Task<bool> WriteDataToFirestore(ILogger log, IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
         {
             var fireStoreKeyBase64 = config["FIREBASE_SDK_SERVICE_KEY"];
             var serviceAccountKey = Encoding.UTF8.GetString(Convert.FromBase64String(fireStoreKeyBase64));
             FirestoreDb firestoreDb = await InitializeFirestoreDb(serviceAccountKey);
 
             Dictionary<string, object> data = new Dictionary<string, object>();
+            List<GeminiInterestsResponse> firestoreData = new List<GeminiInterestsResponse>();
 
             if (isInterests)
             {
-                data.Add("geminiInterests", geminiResult);
+                if(geminiResult.StartsWith("```json"))
+                {
+                  var sanitizedGeminiResult  = geminiResult.Replace("```json", "").Replace("```", "");
+
+                    List<GeminiInterestsResponse> geminiInterestsResponse = JsonConvert.DeserializeObject<List<GeminiInterestsResponse>>(sanitizedGeminiResult);
+
+                    foreach (var res in geminiInterestsResponse)
+                    {
+                        Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
+
+                        if (places.places != null)
+                        {
+                            log.LogInformation("Places response: " + places.places[0].formattedAddress);
+
+                            GeminiInterestsResponse geir = new GeminiInterestsResponse();
+                            geir.address = places.places[0].formattedAddress;
+                            geir.id = places.places[0].id;
+                            geir.title = res.title;
+                            geir.location = res.location;
+                            geir.description = res.description;
+
+                            firestoreData.Add(geir);
+                        }
+                    }
+
+                    string outputJson = JsonConvert.SerializeObject(firestoreData, Formatting.Indented);
+
+                    data.Add("geminiInterests", outputJson);
+
+                    if (firestoreData.Count > 0)
+                    {
+                        return await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+                    }
+                }
+
             } else
             {
                 data.Add("geminiSocialPreferences", geminiResult);
+                return await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
             }
 
-            await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+            return false;
+
         }
 
         private static async Task<FirestoreDb> InitializeFirestoreDb(string serviceAccountKey)
@@ -168,10 +212,46 @@ namespace AdvenaBackend
             return firestoreDb;
         }
 
-        private static async Task AddDocumentToFirestore(FirestoreDb firestoreDb, string collectionName, string documentId, Dictionary<string, object> data)
+        private static async Task<bool> AddDocumentToFirestore(FirestoreDb firestoreDb, string collectionName, string documentId, Dictionary<string, object> data)
         {
             DocumentReference docRef = firestoreDb.Collection(collectionName).Document(documentId);
             await docRef.SetAsync(data, SetOptions.MergeAll);
+            return true;
+        }
+
+        private static async Task<Places> GetPlacesSearchText(ILogger log, IConfigurationRoot config, String restaurantName, String country)
+        {
+            String payload = $@"
+        {{
+            ""textQuery"": "" {restaurantName}, {country}""
+        }}";
+
+            String Url = "https://places.googleapis.com/v1/places:searchText";
+
+            using (HttpClient client = new HttpClient())
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, Url);
+                request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                request.Headers.Add("X-Goog-Api-Key", $"{config["GOOGLE_PLACES_API_KEY"]}");
+                request.Headers.Add("X-Goog-FieldMask", "*");
+                //request.Headers.Add("X-Goog-FieldMask", "places.formattedAddress");
+
+                HttpResponseMessage response = await client.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    var responseObj = JsonConvert.DeserializeObject<Places>(responseBody);
+
+                    return responseObj;
+                }
+                else
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Failed to call the API. Status code: {response.StatusCode}");
+                    return null;
+                
+                }
+            }
         }
 
     }
