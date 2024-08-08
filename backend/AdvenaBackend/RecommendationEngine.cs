@@ -50,7 +50,7 @@ namespace AdvenaBackend
                 return new BadRequestObjectResult(new { error = geminiResults });
             }
 
-            WriteDataToFirestore(configuration, data, geminiResults, isInterests);
+            WriteDataToFirestore(log, configuration, data, geminiResults, isInterests);
 
             return new OkObjectResult(geminiResults);
         }
@@ -131,7 +131,7 @@ namespace AdvenaBackend
             }
         }
 
-        public static async void WriteDataToFirestore(IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
+        public static async void WriteDataToFirestore(ILogger log, IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
         {
             var fireStoreKeyBase64 = config["FIREBASE_SDK_SERVICE_KEY"];
             var serviceAccountKey = Encoding.UTF8.GetString(Convert.FromBase64String(fireStoreKeyBase64));
@@ -141,11 +141,18 @@ namespace AdvenaBackend
 
             if (isInterests)
             {
-                if(geminiResult.Contains("```json ["))
+                if(geminiResult.StartsWith("```json ["))
                 {
                     geminiResult.Replace("```json [", "").Replace("]```", "");
                 }
                 data.Add("geminiInterests", geminiResult);
+                List<GeminiInterestsResponse> geminiInterestsResponse = JsonConvert.DeserializeObject<List<GeminiInterestsResponse>>(geminiResult);
+
+                foreach (var res in geminiInterestsResponse)
+                {
+                    Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
+                }
+
             } else
             {
                 data.Add("geminiSocialPreferences", geminiResult);
@@ -176,6 +183,41 @@ namespace AdvenaBackend
         {
             DocumentReference docRef = firestoreDb.Collection(collectionName).Document(documentId);
             await docRef.SetAsync(data, SetOptions.MergeAll);
+        }
+
+        private static async Task<Places> GetPlacesSearchText(ILogger log, IConfigurationRoot config, String restaurantName, String country)
+        {
+            String payload = $@"
+        {{
+            ""textQuery"": "" {restaurantName}, {country}""
+        }}";
+
+            String Url = "https://places.googleapis.com/v1/places:searchText";
+
+            using (HttpClient client = new HttpClient())
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, Url);
+                request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                request.Headers.Add("X-Goog-Api-Key", $"{config["GOOGLE_PLACES_API_KEY"]}");
+                request.Headers.Add("X-Goog-FieldMask", "*");
+                //request.Headers.Add("X-Goog-FieldMask", "places.formattedAddress");
+
+                HttpResponseMessage response = await client.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    var responseObj = JsonConvert.DeserializeObject<Places>(responseBody);
+
+                    return responseObj;
+                }
+                else
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Failed to call the API. Status code: {response.StatusCode}");
+                    return null;
+                
+                }
+            }
         }
 
     }
