@@ -44,7 +44,7 @@ namespace AdvenaBackend
 
             String jsonPayload = QueryPreparerForGemini(log, data, isInterests);
             String geminiResults = await GetDataFromGemini(log, jsonPayload, configuration);
-
+           
             if (geminiResults.Contains("Error"))
             {
                 return new BadRequestObjectResult(new { error = geminiResults });
@@ -138,28 +138,42 @@ namespace AdvenaBackend
             FirestoreDb firestoreDb = await InitializeFirestoreDb(serviceAccountKey);
 
             Dictionary<string, object> data = new Dictionary<string, object>();
+            List<GeminiInterestsResponse> firestoreData = new List<GeminiInterestsResponse>();
 
             if (isInterests)
             {
-                if(geminiResult.StartsWith("```json ["))
+                if(geminiResult.StartsWith("```json"))
                 {
-                    geminiResult.Replace("```json [", "").Replace("]```", "");
-                }
-                data.Add("geminiInterests", geminiResult);
-                List<GeminiInterestsResponse> geminiInterestsResponse = JsonConvert.DeserializeObject<List<GeminiInterestsResponse>>(geminiResult);
+                  var sanitizedGeminiResult  = geminiResult.Replace("```json", "").Replace("```", "");
 
-                foreach (var res in geminiInterestsResponse)
-                {
-                    Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
-                    log.LogInformation("Places response: " + places);
+                    List<GeminiInterestsResponse> geminiInterestsResponse = JsonConvert.DeserializeObject<List<GeminiInterestsResponse>>(sanitizedGeminiResult);
+
+                    foreach (var res in geminiInterestsResponse)
+                    {
+                        Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
+                        log.LogInformation("Places response: " + places.places[0].formattedAddress);
+
+                        GeminiInterestsResponse geir = new GeminiInterestsResponse();
+                        places.places[0].formattedAddress = geir.address;
+                        places.places[0].id = geir.id;
+                        res.title = geir.title;
+                        res.location = geir.location;
+                        res.description = geir.description;
+
+                        firestoreData.Add(geir);
+                    }
+
+                    data.Add("geminiInterests", firestoreData.ToString());
+
+                    await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
                 }
 
             } else
             {
                 data.Add("geminiSocialPreferences", geminiResult);
+                await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
             }
 
-            await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
         }
 
         private static async Task<FirestoreDb> InitializeFirestoreDb(string serviceAccountKey)
