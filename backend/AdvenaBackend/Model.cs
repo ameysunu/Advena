@@ -69,5 +69,6 @@ namespace AdvenaBackend
         public string description { get; set; }
         public string location { get; set; }
         public string address { get; set; }
+        public string id { get; set; }
     }
 }
