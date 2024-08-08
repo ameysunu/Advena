@@ -151,6 +151,7 @@ namespace AdvenaBackend
                 foreach (var res in geminiInterestsResponse)
                 {
                     Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
+                    log.LogInformation("Places response: " + places);
                 }
 
             } else
