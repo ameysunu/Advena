@@ -44,15 +44,22 @@ namespace AdvenaBackend
 
             String jsonPayload = QueryPreparerForGemini(log, data, isInterests);
             String geminiResults = await GetDataFromGemini(log, jsonPayload, configuration);
-           
+
+
             if (geminiResults.Contains("Error"))
             {
                 return new BadRequestObjectResult(new { error = geminiResults });
             }
 
-            WriteDataToFirestore(log, configuration, data, geminiResults, isInterests);
+            var isWriteSuccess = await WriteDataToFirestore(log, configuration, data, geminiResults, isInterests);
+            
+            if (isWriteSuccess)
+            {
+                return new OkObjectResult("Recommendation Engine successfully processed all data");
+            }
 
-            return new OkObjectResult(geminiResults);
+            return new OkObjectResult("Done");
+            
         }
 
         public static String QueryPreparerForGemini(ILogger logger, RecommendationPayloadData data, bool isInterests)
@@ -131,7 +138,7 @@ namespace AdvenaBackend
             }
         }
 
-        public static async void WriteDataToFirestore(ILogger log, IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
+        public static async Task<bool> WriteDataToFirestore(ILogger log, IConfigurationRoot config, RecommendationPayloadData recData, String geminiResult, bool isInterests)
         {
             var fireStoreKeyBase64 = config["FIREBASE_SDK_SERVICE_KEY"];
             var serviceAccountKey = Encoding.UTF8.GetString(Convert.FromBase64String(fireStoreKeyBase64));
@@ -151,28 +158,39 @@ namespace AdvenaBackend
                     foreach (var res in geminiInterestsResponse)
                     {
                         Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
-                        log.LogInformation("Places response: " + places.places[0].formattedAddress);
 
-                        GeminiInterestsResponse geir = new GeminiInterestsResponse();
-                        places.places[0].formattedAddress = geir.address;
-                        places.places[0].id = geir.id;
-                        res.title = geir.title;
-                        res.location = geir.location;
-                        res.description = geir.description;
+                        if (places.places != null)
+                        {
+                            log.LogInformation("Places response: " + places.places[0].formattedAddress);
 
-                        firestoreData.Add(geir);
+                            GeminiInterestsResponse geir = new GeminiInterestsResponse();
+                            geir.address = places.places[0].formattedAddress;
+                            geir.id = places.places[0].id;
+                            geir.title = res.title;
+                            geir.location = res.location;
+                            geir.description = res.description;
+
+                            firestoreData.Add(geir);
+                        }
                     }
 
-                    data.Add("geminiInterests", firestoreData.ToString());
+                    string outputJson = JsonConvert.SerializeObject(firestoreData, Formatting.Indented);
 
-                    await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+                    data.Add("geminiInterests", outputJson);
+
+                    if (firestoreData.Count > 0)
+                    {
+                        return await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+                    }
                 }
 
             } else
             {
                 data.Add("geminiSocialPreferences", geminiResult);
-                await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+                return await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
             }
+
+            return false;
 
         }
 
@@ -194,10 +212,11 @@ namespace AdvenaBackend
             return firestoreDb;
         }
 
-        private static async Task AddDocumentToFirestore(FirestoreDb firestoreDb, string collectionName, string documentId, Dictionary<string, object> data)
+        private static async Task<bool> AddDocumentToFirestore(FirestoreDb firestoreDb, string collectionName, string documentId, Dictionary<string, object> data)
         {
             DocumentReference docRef = firestoreDb.Collection(collectionName).Document(documentId);
             await docRef.SetAsync(data, SetOptions.MergeAll);
+            return true;
         }
 
         private static async Task<Places> GetPlacesSearchText(ILogger log, IConfigurationRoot config, String restaurantName, String country)
