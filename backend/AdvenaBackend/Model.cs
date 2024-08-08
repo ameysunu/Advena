@@ -51,4 +51,23 @@ namespace AdvenaBackend
         public string category { get; set; }
         public string probability { get; set; }
     }
+
+    public class Places
+    {
+       public List<Place> places { get; set; }
+    }
+
+    public class Place
+    {
+       public string id { get; set; }
+       public string formattedAddress { get; set; }
+    }
+
+    public class GeminiInterestsResponse
+    {
+        public string title { get; set; }
+        public string description { get; set; }
+        public string location { get; set; }
+        public string address { get; set; }
+    }
 }
