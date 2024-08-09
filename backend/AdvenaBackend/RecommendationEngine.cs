@@ -45,7 +45,6 @@ namespace AdvenaBackend
             String jsonPayload = QueryPreparerForGemini(log, data, isInterests);
             String geminiResults = await GetDataFromGemini(log, jsonPayload, configuration);
 
-
             if (geminiResults.Contains("Error"))
             {
                 return new BadRequestObjectResult(new { error = geminiResults });
@@ -174,9 +173,7 @@ namespace AdvenaBackend
                         }
                     }
 
-                    string outputJson = JsonConvert.SerializeObject(firestoreData, Formatting.Indented);
-
-                    data.Add("geminiInterests", outputJson);
+                    data.Add("geminiInterests", firestoreData);
 
                     if (firestoreData.Count > 0)
                     {
