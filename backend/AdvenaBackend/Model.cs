@@ -64,6 +64,32 @@ namespace AdvenaBackend
        public string formattedAddress { get; set; }
     }
 
+    public class PlaceDetails
+    {
+        public string rating { get; set; }
+        public string websiteUri { get; set; }
+        public PlacesOpeningHours regularOpeningHours { get; set;}
+        public List<PlacePhoto> photos { get; set; }
+    }
+
+    public class PlacesOpeningHours
+    {
+        public bool openNow { get; set; }
+    }
+
+    public class PlacePhoto
+    {
+        public string name { get; set; }
+        public List<PlaceAuthorAttributions> authorAttributions { get; set; }
+    }
+
+    public class PlaceAuthorAttributions
+    {
+        public string displayName { get; set; }
+        public string uri { get; set; }
+        public string photoUri { get; set; }
+    }
+
     [FirestoreData]
     public class GeminiInterestsResponse
     {
@@ -77,5 +103,13 @@ namespace AdvenaBackend
         public string address { get; set; }
         [FirestoreProperty]
         public string id { get; set; }
+        [FirestoreProperty]
+        public string photoUri { get; set; }
+        [FirestoreProperty]
+        public string rating { get; set; }
+        [FirestoreProperty]
+        public string websiteUri { get; set; }
+        [FirestoreProperty]
+        public bool openNow { get; set; }
     }
 }
