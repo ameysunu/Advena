@@ -28,9 +28,21 @@ class GeminiInterestsResponse {
   String? id;
   String? location;
   String? address;
+  bool? openNow;
+  String? photoUri;
+  String? rating;
+  String? websiteUri;
 
   GeminiInterestsResponse(
-      {this.title, this.description, this.id, this.location, this.address});
+      {this.title,
+      this.description,
+      this.id,
+      this.location,
+      this.address,
+      this.openNow,
+      this.photoUri,
+      this.rating,
+      this.websiteUri});
 
   factory GeminiInterestsResponse.fromJson(Map<String, dynamic> json) {
     return GeminiInterestsResponse(
@@ -38,6 +50,10 @@ class GeminiInterestsResponse {
         description: json['description'],
         id: json['id'],
         location: json['location'],
+        openNow: json['openNow'],
+        photoUri: json['photoUri'],
+        rating: json['rating'],
+        websiteUri: json['websiteUri'],
         address: json['address']);
   }
 
@@ -47,7 +63,11 @@ class GeminiInterestsResponse {
       'description': description,
       'id': id,
       'location': location,
-      'address': address
+      'address': address,
+      'openNow': openNow,
+      'photoUri': photoUri,
+      'rating': rating,
+      'websiteUri': websiteUri
     };
   }
 }
