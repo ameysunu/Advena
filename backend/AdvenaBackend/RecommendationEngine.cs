@@ -164,15 +164,22 @@ namespace AdvenaBackend
 
                             PlaceDetails placeDetails = await GetPlaceDetails(config, log, places.places[0].id);
 
+                            var regularOpeningHours = placeDetails.regularOpeningHours;
+                            bool isPlaceOpen = false;
+                            if (regularOpeningHours != null)
+                            {
+                                isPlaceOpen = regularOpeningHours.openNow;
+                            }
+
                             GeminiInterestsResponse geir = new GeminiInterestsResponse();
-                            geir.address = places.places[0].formattedAddress;
-                            geir.id = places.places[0].id;
-                            geir.title = res.title;
-                            geir.location = res.location;
-                            geir.description = res.description;
-                            geir.photoUri = placeDetails.photos[0].authorAttributions[0].photoUri;
-                            geir.rating = placeDetails.rating;
-                            geir.openNow = placeDetails.regularOpeningHours.openNow;
+                            geir.address = places.places[0].formattedAddress ?? "";
+                            geir.id = places.places[0].id ?? "";
+                            geir.title = res.title ?? "";
+                            geir.location = res.location ?? "";
+                            geir.description = res.description ?? "";
+                            geir.photoUri = placeDetails.photos[0].authorAttributions[0].photoUri ?? "";
+                            geir.rating = placeDetails.rating ?? "";
+                            geir.openNow = isPlaceOpen;
                             geir.websiteUri = placeDetails.websiteUri;
 
                             firestoreData.Add(geir);
