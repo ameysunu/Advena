@@ -162,12 +162,18 @@ namespace AdvenaBackend
                         {
                             log.LogInformation("Places response: " + places.places[0].formattedAddress);
 
+                            PlaceDetails placeDetails = await GetPlaceDetails(config, log, places.places[0].id);
+
                             GeminiInterestsResponse geir = new GeminiInterestsResponse();
                             geir.address = places.places[0].formattedAddress;
                             geir.id = places.places[0].id;
                             geir.title = res.title;
                             geir.location = res.location;
                             geir.description = res.description;
+                            geir.photoUri = placeDetails.photos[0].authorAttributions[0].photoUri;
+                            geir.rating = placeDetails.rating;
+                            geir.openNow = placeDetails.regularOpeningHours.openNow;
+                            geir.websiteUri = placeDetails.websiteUri;
 
                             firestoreData.Add(geir);
                         }
@@ -247,6 +253,35 @@ namespace AdvenaBackend
                     log.LogInformation($"Failed to call the API. Status code: {response.StatusCode}");
                     return null;
                 
+                }
+            }
+        }
+
+        private static async Task<PlaceDetails> GetPlaceDetails(IConfiguration config, ILogger log, String placeId)
+        {
+            String Url = $"https://places.googleapis.com/v1/places/{placeId}";
+
+            using (HttpClient client = new HttpClient())
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, Url);
+                request.Headers.Add("X-Goog-Api-Key", $"{config["GOOGLE_PLACES_API_KEY"]}");
+                request.Headers.Add("X-Goog-FieldMask", "*");
+                //request.Headers.Add("X-Goog-FieldMask", "places.formattedAddress");
+
+                HttpResponseMessage response = await client.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    var responseObj = JsonConvert.DeserializeObject<PlaceDetails>(responseBody);
+
+                    return responseObj;
+                }
+                else
+                {
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    log.LogInformation($"Failed to call the API. Status code: {response.StatusCode}");
+                    return null;
+
                 }
             }
         }
