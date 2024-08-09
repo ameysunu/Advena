@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Cloud.Firestore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -63,12 +64,18 @@ namespace AdvenaBackend
        public string formattedAddress { get; set; }
     }
 
+    [FirestoreData]
     public class GeminiInterestsResponse
     {
+        [FirestoreProperty]
         public string title { get; set; }
+        [FirestoreProperty]
         public string description { get; set; }
+        [FirestoreProperty]
         public string location { get; set; }
+        [FirestoreProperty]
         public string address { get; set; }
+        [FirestoreProperty]
         public string id { get; set; }
     }
 }
