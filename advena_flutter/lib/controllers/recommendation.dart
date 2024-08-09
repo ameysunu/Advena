@@ -142,18 +142,10 @@ class RecommendationController {
     return "null";
   }
 
-  List<GeminiInterestsResponse>? sanitizeGeminiInterestsJson(
-      String rawResponse) {
-    if (rawResponse.startsWith('```json') && rawResponse.endsWith('```')) {
-      String sanitizedString =
-          rawResponse.substring(7, rawResponse.length - 3).trim();
-      List<dynamic> jsonData = jsonDecode(sanitizedString);
-      List<GeminiInterestsResponse> responseJson = jsonData
-          .map((item) => GeminiInterestsResponse.fromJson(item))
-          .toList();
-
-      return responseJson;
-    }
-    return null;
+  List<GeminiInterestsResponse> deserializeGeminiResponse(
+      List<dynamic> jsonList) {
+    return jsonList.map((item) {
+      return GeminiInterestsResponse.fromJson(item);
+    }).toList();
   }
 }
