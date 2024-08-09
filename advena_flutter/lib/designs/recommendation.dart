@@ -233,12 +233,12 @@ class RecommendationWidgets {
             new RecommendationController(user);
         List<GeminiInterestsResponse>? geminiInterests =
             _recommendationController
-                .sanitizeGeminiInterestsJson(data['geminiInterests']);
+                .deserializeGeminiResponse(data['geminiInterests']);
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: geminiInterests!.map((interest) {
+            children: geminiInterests.map((interest) {
               return GestureDetector(
                 onTap: () async {
                   //await showDialogWidget(context, event);
