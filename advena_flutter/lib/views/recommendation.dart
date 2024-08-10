@@ -32,49 +32,52 @@ class _RecommendationViewState extends State<RecommendationView> {
   }
 
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Recommendation",
-            style: TextStyle(
-                fontFamily: 'WorkSans',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: HexColor('#FFFFFF')),
-          ),
-          StreamBuilder<bool>(
-            stream: recommendationItems,
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else if (snapshot.hasData) {
-                bool isTrue = snapshot.data ?? false;
-                // return Text(isTrue
-                //     ? 'Show Recommendations'
-                //     : 'Show screen asking for recommendation');
-                return Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    children: [
-                      isTrue
-                          ? _widgets.geminiRecommendationWidgets(
-                              context, widget.isDay)
-                          : _widgets.recommendationOption(
-                              context, widget.isDay),
-                    ],
-                  ),
-                );
-              } else {
-                return Text('No data');
-              }
-            },
-          ),
-        ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Recommendation",
+              style: TextStyle(
+                  fontFamily: 'WorkSans',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: HexColor('#FFFFFF')),
+            ),
+            StreamBuilder<bool>(
+              stream: recommendationItems,
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  bool isTrue = snapshot.data ?? false;
+                  // return Text(isTrue
+                  //     ? 'Show Recommendations'
+                  //     : 'Show screen asking for recommendation');
+                  return Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      children: [
+                        isTrue
+                            ? _widgets.geminiRecommendationWidgets(
+                                context, widget.isDay)
+                            : _widgets.recommendationOption(
+                                context, widget.isDay),
+                        SizedBox(height: 70),
+                      ],
+                    ),
+                  );
+                } else {
+                  return Text('No data');
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
