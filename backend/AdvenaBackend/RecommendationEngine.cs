@@ -175,7 +175,7 @@ namespace AdvenaBackend
                         geir.title = res.title ?? "";
                         geir.location = res.location ?? "";
                         geir.description = res.description ?? "";
-                        geir.photoUri = placeDetails.photos[0].authorAttributions[0].photoUri ?? "";
+                        geir.photoUri = ConstructImageUrl(placeDetails.photos[0].name ?? "", config);
                         geir.rating = placeDetails.rating ?? "";
                         geir.openNow = isPlaceOpen;
                         geir.websiteUri = placeDetails.websiteUri;
@@ -200,6 +200,15 @@ namespace AdvenaBackend
 
             return false;
 
+        }
+
+        private static String ConstructImageUrl(string reference, IConfiguration config)
+        {
+            string[] parts = reference.Split('/');
+            string photoReference = parts[parts.Length - 1];
+            string url = $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photoReference}&key={config["GOOGLE_PLACES_API_KEY"]}";
+
+            return url;
         }
 
         private static async Task<FirestoreDb> InitializeFirestoreDb(string serviceAccountKey)
