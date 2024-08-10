@@ -82,7 +82,7 @@ namespace AdvenaBackend
                 String groupSize = data.socialPreferences.groupSize.ToString();
                 String socializing = data.socialPreferences.socializing;
 
-                userTextContent = $"Suggest me top 10 places in {country} that incorporate my social preferences as - dining: {dining}, my group size: {groupSize} and my socializing type of being {socializing} along with their location in url";
+                userTextContent = $"Suggest me top 10 places in {country} that incorporate my social preferences as - dining: {dining}, my group size: {groupSize} and my socializing type of being {socializing}. {interestsQueryPostFix}";
             }
 
             return $@"
@@ -146,55 +146,74 @@ namespace AdvenaBackend
             Dictionary<string, object> data = new Dictionary<string, object>();
             List<GeminiInterestsResponse> firestoreData = new List<GeminiInterestsResponse>();
 
-            if (isInterests)
+            if (geminiResult.StartsWith("```json"))
             {
-                if(geminiResult.StartsWith("```json"))
+                var sanitizedGeminiResult = geminiResult.Replace("```json", "").Replace("```", "");
+
+                List<GeminiInterestsResponse> geminiInterestsResponse = JsonConvert.DeserializeObject<List<GeminiInterestsResponse>>(sanitizedGeminiResult);
+
+                foreach (var res in geminiInterestsResponse)
                 {
-                  var sanitizedGeminiResult  = geminiResult.Replace("```json", "").Replace("```", "");
+                    Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
 
-                    List<GeminiInterestsResponse> geminiInterestsResponse = JsonConvert.DeserializeObject<List<GeminiInterestsResponse>>(sanitizedGeminiResult);
-
-                    foreach (var res in geminiInterestsResponse)
+                    if (places.places != null)
                     {
-                        Places places = await GetPlacesSearchText(log, config, res.title, recData.userLocation);
+                        log.LogInformation("Places response: " + places.places[0].formattedAddress);
 
-                        if (places.places != null)
+                        PlaceDetails placeDetails = await GetPlaceDetails(config, log, places.places[0].id);
+
+                        var regularOpeningHours = placeDetails.regularOpeningHours;
+                        bool isPlaceOpen = false;
+                        if (regularOpeningHours != null)
                         {
-                            log.LogInformation("Places response: " + places.places[0].formattedAddress);
-
-                            PlaceDetails placeDetails = await GetPlaceDetails(config, log, places.places[0].id);
-
-                            GeminiInterestsResponse geir = new GeminiInterestsResponse();
-                            geir.address = places.places[0].formattedAddress;
-                            geir.id = places.places[0].id;
-                            geir.title = res.title;
-                            geir.location = res.location;
-                            geir.description = res.description;
-                            geir.photoUri = placeDetails.photos[0].authorAttributions[0].photoUri;
-                            geir.rating = placeDetails.rating;
-                            geir.openNow = placeDetails.regularOpeningHours.openNow;
-                            geir.websiteUri = placeDetails.websiteUri;
-
-                            firestoreData.Add(geir);
+                            isPlaceOpen = regularOpeningHours.openNow;
                         }
-                    }
 
-                    data.Add("geminiInterests", firestoreData);
+                        GeminiInterestsResponse geir = new GeminiInterestsResponse();
+                        geir.address = places.places[0].formattedAddress ?? "";
+                        geir.id = places.places[0].id ?? "";
+                        geir.title = res.title ?? "";
+                        geir.location = res.location ?? "";
+                        geir.description = res.description ?? "";
 
-                    if (firestoreData.Count > 0)
-                    {
-                        return await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+                        if(placeDetails.photos != null)
+                        {
+                            geir.photoUri = ConstructImageUrl(placeDetails.photos[0].name ?? "", config);
+                        }
+
+                        geir.rating = placeDetails.rating ?? "";
+                        geir.openNow = isPlaceOpen;
+                        geir.websiteUri = placeDetails.websiteUri;
+
+                        firestoreData.Add(geir);
                     }
                 }
 
-            } else
-            {
-                data.Add("geminiSocialPreferences", geminiResult);
-                return await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+                if (isInterests)
+                {
+                    data.Add("geminiInterests", firestoreData);
+                } else
+                {
+                    data.Add("geminiSocialPreferences", firestoreData);
+                }
+
+                if (firestoreData.Count > 0)
+                {
+                    return await AddDocumentToFirestore(firestoreDb, "geminidata", recData.userId, data);
+                }
             }
 
             return false;
 
+        }
+
+        private static String ConstructImageUrl(string reference, IConfiguration config)
+        {
+            string[] parts = reference.Split('/');
+            string photoReference = parts[parts.Length - 1];
+            string url = $"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photoReference}&key={config["GOOGLE_PLACES_API_KEY"]}";
+
+            return url;
         }
 
         private static async Task<FirestoreDb> InitializeFirestoreDb(string serviceAccountKey)
