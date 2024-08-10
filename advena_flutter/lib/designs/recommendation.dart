@@ -1,5 +1,6 @@
 import 'package:advena_flutter/controllers/recommendation.dart';
 import 'package:advena_flutter/models/recommendation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -165,6 +166,267 @@ class RecommendationWidgets {
           ],
         ),
       ),
+    );
+  }
+
+  Widget geminiRecommendationWidgets(BuildContext context, bool isDay) {
+    final Color textColor = isDay ? Colors.black : Colors.white;
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+            child: Text("Recommended Interests ✨",
+                style: TextStyle(
+                    color: textColor,
+                    fontFamily: "WorkSans",
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
+          ),
+          geminiRecommendations(context, isDay),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 20, 10, 10),
+            child: Text("Places to grab a bite ✨",
+                style: TextStyle(
+                    color: textColor,
+                    fontFamily: "WorkSans",
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
+          ),
+          geminiSocialPreferences(context, isDay)
+        ],
+      ),
+    );
+  }
+
+  Widget geminiRecommendations(BuildContext context, bool isDay) {
+    final Color textColor = isDay ? Colors.black : Colors.white;
+    Stream<DocumentSnapshot> _geminiStream = FirebaseFirestore.instance
+        .collection('geminidata')
+        .doc(user.uid)
+        .snapshots();
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _geminiStream,
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong',
+              style: TextStyle(color: textColor));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading...",
+              style: TextStyle(
+                  color: textColor,
+                  fontFamily: "WorkSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold));
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text(
+              '✨ Hold on, Gemini is optimizing and learning your recommendation. This will be available to you shortly ✨',
+              style: TextStyle(
+                  color: textColor,
+                  fontFamily: "WorkSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold));
+        }
+
+        Map<String, dynamic> data =
+            snapshot.data!.data()! as Map<String, dynamic>;
+        RecommendationController _recommendationController =
+            new RecommendationController(user);
+        List<GeminiInterestsResponse>? geminiInterests =
+            _recommendationController
+                .deserializeGeminiResponse(data['geminiInterests']);
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: geminiInterests.map((interest) {
+              return GestureDetector(
+                onTap: () async {
+                  //await showDialogWidget(context, event);
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  margin: EdgeInsets.symmetric(horizontal: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        "${interest.photoUri}",
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Spacer(),
+                          Text(
+                            interest.title ?? 'No name',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: "WorkSans",
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            child: Text(
+                              "${interest.location}",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "WorkSans",
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget geminiSocialPreferences(BuildContext context, bool isDay) {
+    final Color textColor = isDay ? Colors.black : Colors.white;
+    Stream<DocumentSnapshot> _geminiStream = FirebaseFirestore.instance
+        .collection('geminidata')
+        .doc(user.uid)
+        .snapshots();
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _geminiStream,
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong',
+              style: TextStyle(color: textColor));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading...",
+              style: TextStyle(
+                  color: textColor,
+                  fontFamily: "WorkSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold));
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text(
+              'Gemini is learning your social preferences, please wait...',
+              style: TextStyle(
+                  color: textColor,
+                  fontFamily: "WorkSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold));
+        }
+
+        Map<String, dynamic> data =
+            snapshot.data!.data()! as Map<String, dynamic>;
+        RecommendationController _recommendationController =
+            new RecommendationController(user);
+
+        if (data['geminiSocialPreferences'] == null) {
+          return Text('Gemini is learning your social preferences, please wait...',
+              style: TextStyle(
+                  color: textColor,
+                  fontFamily: "WorkSans",
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold));
+        }
+
+        List<GeminiInterestsResponse>? geminiInterests =
+            _recommendationController
+                .deserializeGeminiResponse(data['geminiSocialPreferences']);
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: geminiInterests.map((interest) {
+              return GestureDetector(
+                onTap: () async {
+                  //await showDialogWidget(context, event);
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  margin: EdgeInsets.symmetric(horizontal: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        "${interest.photoUri}",
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Spacer(),
+                          Text(
+                            interest.title ?? 'No name',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: "WorkSans",
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            child: Text(
+                              "${interest.location}",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "WorkSans",
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 
@@ -414,7 +676,6 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    
                     socialPreferences.dining = _diningCompanion;
                     socialPreferences.groupSize = _groupSize;
                     socialPreferences.socializing = _socializingPreference;
@@ -485,7 +746,6 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-
                     _recommendationController =
                         RecommendationController(widget.user);
                     var isSubmitted = await _recommendationController
