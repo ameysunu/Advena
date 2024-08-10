@@ -43,7 +43,8 @@ namespace AdvenaBackend
             bool isInterests = data.isInterests;
 
             String jsonPayload = QueryPreparerForGemini(log, data, isInterests);
-            String geminiResults = await GetDataFromGemini(log, jsonPayload, configuration);
+            //String geminiResults = await GetDataFromGemini(log, jsonPayload, configuration);
+            String geminiResults = "```json [ { \"title\": \"Sydney Cricket Ground (SCG)\", \"description\": \"The iconic Sydney Cricket Ground is home to cricket, rugby league, and Australian rules football. It hosts major sporting events throughout the year, including the annual Boxing Day Test match and the Sydney Swans AFL games.\", \"location\": \"Moore Park\", \"address\": \"Sydney Cricket Ground, Driver Avenue, Moore Park NSW 2021\" }, { \"title\": \"ANZ Stadium\", \"description\": \"A multi-purpose stadium located in Sydney Olympic Park, ANZ Stadium is known for hosting major sporting events, including rugby league, rugby union, soccer, and athletics. It also features a running track and a range of fitness facilities.\", \"location\": \"Sydney Olympic Park\", \"address\": \"ANZ Stadium, Olympic Boulevard, Sydney Olympic Park NSW 2127\" }, { \"title\": \"Sydney Olympic Park\", \"description\": \"A vast sporting and recreational complex, Sydney Olympic Park offers a variety of sporting facilities, including the Aquatic Centre, Tennis Centre, and velodrome. It also has numerous walking and cycling paths, making it ideal for fitness enthusiasts.\", \"location\": \"Sydney Olympic Park\", \"address\": \"Sydney Olympic Park, Olympic Boulevard, Sydney Olympic Park NSW 2127\" }, { \"title\": \"Coogee Beach\", \"description\": \"Coogee Beach is a popular destination for swimming, surfing, and other beach activities. It also has a well-maintained promenade perfect for walking, running, and cycling.\", \"location\": \"Coogee\", \"address\": \"Coogee Beach, Coogee NSW 2034\" }, { \"title\": \"Bondi Beach\", \"description\": \"Bondi Beach is another iconic Sydney beach renowned for its waves and vibrant atmosphere. It offers a wide range of fitness activities, including swimming, surfing, beach volleyball, and beach yoga.\", \"location\": \"Bondi\", \"address\": \"Bondi Beach, Bondi NSW 2026\" }, { \"title\": \"Centennial Park\", \"description\": \"A large urban park in the heart of Sydney, Centennial Park offers scenic walking and running tracks, bike paths, and dedicated areas for outdoor fitness activities. It also hosts various sporting events throughout the year.\", \"location\": \"Randwick\", \"address\": \"Centennial Park, Oxford Street, Randwick NSW 2031\" }, { \"title\": \"Sydney Harbour Bridge\", \"description\": \"The iconic Sydney Harbour Bridge offers a unique opportunity for fitness enthusiasts to climb the bridge, offering breathtaking views and a challenging workout. It also provides scenic walking and cycling paths.\", \"location\": \"Sydney CBD\", \"address\": \"Sydney Harbour Bridge, Sydney NSW 2000\" }, { \"title\": \"Fitness First\", \"description\": \"A leading fitness chain with multiple locations across Sydney, Fitness First offers a wide range of fitness classes, gym equipment, and personal training services.\", \"location\": \"Various Locations\", \"address\": \"Various locations across Sydney\" }, { \"title\": \"Anytime Fitness\", \"description\": \"Another popular fitness chain with 24/7 access, Anytime Fitness offers a range of workout options, including strength training, cardio equipment, and group fitness classes.\", \"location\": \"Various Locations\", \"address\": \"Various locations across Sydney\" }, { \"title\": \"Goodlife Health Clubs\", \"description\": \"Goodlife Health Clubs operates several gyms across Sydney, providing a comprehensive range of fitness facilities, classes, and personal training services.\", \"location\": \"Various Locations\", \"address\": \"Various locations across Sydney\" } ] ```";
 
             if (geminiResults.Contains("Error"))
             {
@@ -175,7 +176,12 @@ namespace AdvenaBackend
                         geir.title = res.title ?? "";
                         geir.location = res.location ?? "";
                         geir.description = res.description ?? "";
-                        geir.photoUri = ConstructImageUrl(placeDetails.photos[0].name ?? "", config);
+
+                        if(placeDetails.photos != null)
+                        {
+                            geir.photoUri = ConstructImageUrl(placeDetails.photos[0].name ?? "", config);
+                        }
+
                         geir.rating = placeDetails.rating ?? "";
                         geir.openNow = isPlaceOpen;
                         geir.websiteUri = placeDetails.websiteUri;
