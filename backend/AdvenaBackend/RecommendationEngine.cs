@@ -82,7 +82,7 @@ namespace AdvenaBackend
                 String groupSize = data.socialPreferences.groupSize.ToString();
                 String socializing = data.socialPreferences.socializing;
 
-                userTextContent = $"Suggest me top 10 places in {country} that incorporate my social preferences as - dining: {dining}, my group size: {groupSize} and my socializing type of being {socializing}. {interestsQueryPostFix}";
+                userTextContent = $"Suggest me top 10 places in {country} that incorporate my social preferences as - dining: {dining}, my group size: {groupSize} and my socializing type of being {socializing}. {interestsQueryPostFix}. The Json data alone would suffice, this data will be serialized.";
             }
 
             return $@"
