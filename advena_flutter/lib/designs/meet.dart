@@ -127,8 +127,14 @@ class _MeetupListWidgetState extends State<MeetupListWidget> {
                 children: snapshot.data!.docs.map<Widget>((doc) {
                   var docData = doc.data() as Map<String, dynamic>;
 
-                  return meetupView(context, docData['name'],
-                      docData['location'], docData['date']);
+                  return meetupView(
+                      context,
+                      docData['name'],
+                      docData['location'],
+                      docData['date'],
+                      docData['description'],
+                      docData['attendees'],
+                      docData['created']);
                 }).toList(),
               );
             },
@@ -139,13 +145,16 @@ class _MeetupListWidgetState extends State<MeetupListWidget> {
   }
 }
 
-Widget meetupView(
-    BuildContext context, String title, String location, String date) {
+Widget meetupView(BuildContext context, String title, String location,
+    String date, String description, int attendees, String creator) {
   return Container(
     height: MediaQuery.of(context).size.height * 0.3,
     child: Row(children: [
       GestureDetector(
-        onTap: () async {},
+        onTap: () async {
+          await showMeetup(
+              context, title, description, location, date, attendees, creator);
+        },
         child: Container(
           width: MediaQuery.of(context).size.width * 0.85,
           height: 100,
@@ -210,5 +219,168 @@ Widget meetupView(
         ),
       ),
     ]),
+  );
+}
+
+Future<void> showMeetup(BuildContext context, String title, String description,
+    String location, String date, int attendees, String creator) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (BuildContext context) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    title ?? '',
+                    style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10.0, 0, 10, 10),
+                  child: Text("$description",
+                      style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontSize: 20,
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "$location",
+                    style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "$date",
+                    style: TextStyle(fontFamily: "WorkSans", fontSize: 20),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "Registered people: $attendees",
+                    style: TextStyle(fontFamily: "WorkSans", fontSize: 20),
+                  ),
+                ),
+                Spacer(),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ElevatedButton(
+                        onPressed: () async {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: HexColor('#FF693E'),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                        ),
+                        child: Text(
+                          'Meet the creator',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontFamily: "WorkSans"),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ElevatedButton(
+                        onPressed: () async {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: HexColor('#FF0071'),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                        ),
+                        child: Text(
+                          "Not for me",
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontFamily: "WorkSans"),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.thumb_up, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: HexColor('#1000FF'),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
+                        ),
+                        child: Text(
+                          'Register',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontFamily: "WorkSans"),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.close, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
   );
 }
