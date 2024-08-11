@@ -17,12 +17,29 @@ jobs:
       - name: Extract commit description
         id: get_description
         run: | 
+          # Get the description (everything after the first line) of the latest commit
           commit_description="$(git log -1 --pretty=%B | tail -n +3)"
           echo "Commit description: $commit_description"
 
-          tag_name="$(echo "$commit_description" | grep -oP 'Tag: \Kv[0-9]+\.[0-9]+\.[0-9]+')"
-          release_name="$(echo "$commit_description" | grep -oP 'Release Name: \K.*')"
+          # Parse the tag and release name
+          tag_name="$(echo "$commit_description" | grep -oP 'Tag: \Kv[0-9]+\.[0-9]+\.[0-9]+' || echo '')"
+          release_name="$(echo "$commit_description" | grep -oP 'Release Name: \K.*' || echo '')"
 
+          # Check if the tag_name and release_name are empty and set default values if needed
+          if [ -z "$tag_name" ]; then
+            echo "Tag name not found in commit description, using default."
+            tag_name="v1.0.0"
+          fi
+
+          if [ -z "$release_name" ]; then
+            echo "Release name not found in commit description, using default."
+            release_name="Default Release Name"
+          fi
+
+          echo "Parsed tag name: $tag_name"
+          echo "Parsed release name: $release_name"
+
+          # Output the parsed values
           echo "::set-output name=tag_name::$tag_name"
           echo "::set-output name=release_name::$release_name"
 
