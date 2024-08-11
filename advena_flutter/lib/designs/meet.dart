@@ -2,6 +2,7 @@ import 'package:advena_flutter/controllers/meet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 
 class MeetupWidget extends StatefulWidget {
   const MeetupWidget({super.key});
@@ -19,6 +20,7 @@ class _MeetupWidgetState extends State<MeetupWidget> {
   }
 }
 
+// ignore: must_be_immutable
 class MeetupListWidget extends StatefulWidget {
   final bool isDay;
   User? user;
@@ -121,19 +123,12 @@ class _MeetupListWidgetState extends State<MeetupListWidget> {
               }
 
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: snapshot.data!.docs.map<Widget>((doc) {
                   var docData = doc.data() as Map<String, dynamic>;
-                  return Text(
-                    docData['name'],
-                    style: TextStyle(
-                        fontFamily: "WorkSans",
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
-                  );
-                  // return ListTile(
-                  //   title: Text(docData['name'] ?? 'Unnamed Meetup'),
-                  //   subtitle: Text(docData['description'] ?? 'No description'),
-                  // );
+
+                  return meetupView(context, docData['name'],
+                      docData['location'], docData['date']);
                 }).toList(),
               );
             },
@@ -142,4 +137,78 @@ class _MeetupListWidgetState extends State<MeetupListWidget> {
       },
     );
   }
+}
+
+Widget meetupView(
+    BuildContext context, String title, String location, String date) {
+  return Container(
+    height: MediaQuery.of(context).size.height * 0.3,
+    child: Row(children: [
+      GestureDetector(
+        onTap: () async {},
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.85,
+          height: 100,
+          margin: EdgeInsets.symmetric(horizontal: 8.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                HexColor("#d16ba5"),
+                HexColor("#c777b9"),
+                HexColor("#ba83ca"),
+                HexColor("#aa8fd8"),
+                HexColor("#9a9ae1"),
+                HexColor("#8aa7ec"),
+                HexColor("#79b3f4"),
+                HexColor("#69bff8"),
+                HexColor("#52cffe"),
+                HexColor("#41dfff"),
+                HexColor("#46eefa"),
+                HexColor("#5ffbf1"),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.black.withOpacity(0.3),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Spacer(),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: "WorkSans",
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                    child: Text(
+                      "$location @ $date",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: "WorkSans",
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ]),
+  );
 }

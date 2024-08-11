@@ -38,6 +38,7 @@ class _MeetViewState extends State<MeetView> {
     return Padding(
       padding: EdgeInsets.all(10.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "Meetup",
@@ -59,6 +60,7 @@ class _MeetViewState extends State<MeetView> {
                 return Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       isTrue
                           ? MeetupListWidget(
