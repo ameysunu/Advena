@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 import '../controllers/recommendation.dart';
+import '../designs/widgets.dart';
 
 // ignore: must_be_immutable
 class MeetView extends StatefulWidget {
@@ -40,13 +41,21 @@ class _MeetViewState extends State<MeetView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Meetup",
-            style: TextStyle(
-                fontFamily: 'WorkSans',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: HexColor('#FFFFFF')),
+          Row(
+            children: [
+              Text(
+                "Meetup",
+                style: TextStyle(
+                    fontFamily: 'WorkSans',
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: HexColor('#FFFFFF')),
+              ),
+              Spacer(),
+              MoreOptions(
+                list: ["More", "Past Meetups", "Create a Meetup"],
+              ),
+            ],
           ),
           StreamBuilder<bool>(
             stream: recommendationItems,
