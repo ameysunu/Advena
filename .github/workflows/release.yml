@@ -17,15 +17,12 @@ jobs:
       - name: Extract commit description
         id: get_description
         run: | 
-          # Get the description (everything after the first line) of the latest commit
           commit_description="$(git log -1 --pretty=%B | tail -n +3)"
           echo "Commit description: $commit_description"
 
-          # Parse the tag and release name
           tag_name="$(echo "$commit_description" | grep -oP 'Tag: \Kv[0-9]+\.[0-9]+\.[0-9]+' || echo '')"
           release_name="$(echo "$commit_description" | grep -oP 'Release Name: \K.*' || echo '')"
 
-          # Check if the tag_name and release_name are empty and set default values if needed
           if [ -z "$tag_name" ]; then
             echo "Tag name not found in commit description, using default."
             tag_name="v1.0.0"
@@ -39,7 +36,6 @@ jobs:
           echo "Parsed tag name: $tag_name"
           echo "Parsed release name: $release_name"
 
-          # Output the parsed values
           echo "::set-output name=tag_name::$tag_name"
           echo "::set-output name=release_name::$release_name"
 
@@ -50,6 +46,10 @@ jobs:
           workflow: flutter-master-build.yaml
           workflow_search: false
           workflow_conclusion: success
+
+      - name: Compress artifact directory
+        run: |
+          zip -r artifact.zip ./app-release-apk
 
       - name: Create GitHub Release
         id: create_release
@@ -69,6 +69,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: './app-release-apk'
+          asset_path: './artifact.zip'
           asset_name: artifact.zip
           asset_content_type: application/zip
