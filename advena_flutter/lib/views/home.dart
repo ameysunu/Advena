@@ -45,7 +45,10 @@ class _HomeState extends State<Home> {
         user: widget.user,
         isDay: isDay!,
       ),
-      MeetView(),
+      MeetView(
+        user: widget.user,
+        isDay: isDay!,
+      ),
     ];
 
     return Scaffold(
