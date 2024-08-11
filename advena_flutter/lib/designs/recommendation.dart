@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ignore: must_be_immutable
 class InterestsSelection extends StatefulWidget {
@@ -251,7 +252,7 @@ class RecommendationWidgets {
             children: geminiInterests.map((interest) {
               return GestureDetector(
                 onTap: () async {
-                  //await showDialogWidget(context, event);
+                  await showRecommendedInterests(context, interest);
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.6,
@@ -798,4 +799,129 @@ class __RecommendationFormStateState extends State<_RecommendationFormState> {
 
     return interestsWidget();
   }
+}
+
+Future<void> showRecommendedInterests(BuildContext context, GeminiInterestsResponse interests) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (BuildContext context) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    interests.title ?? "",
+                    style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10.0, 0, 10, 10),
+                  child: Text(interests.description ?? "",
+                      style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontSize: 20,
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    interests.location ?? "",
+                    style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "Rating: ${interests.rating}" ?? "",
+                    style: TextStyle(fontFamily: "WorkSans", fontSize: 20),
+                  ),
+                ),
+                Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        decoration:
+                            BoxDecoration(// Optional border for visibility
+                                ),
+                        child: Image.network(
+                         interests.photoUri ?? "",
+                          fit: BoxFit
+                              .cover, // Ensures the image covers the entire box
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Center(child: CircularProgressIndicator());
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(child: Text('Failed to load image'));
+                          },
+                        ),
+                      ),
+                Spacer(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (interests.websiteUri != null) {
+                              final Uri _url = Uri.parse(interests.websiteUri!);
+                              if (!await launchUrl(_url)) {
+                                throw Exception('Could not launch ${interests.websiteUri}');
+                              }
+                            }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: HexColor('#1000FF'),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 15),
+                        ),
+                        child: Text(
+                          'Learn more',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontFamily: "WorkSans"),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.close, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
