@@ -12,20 +12,33 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Extract commit message
-        id: get_message
+      - name: Extract commit description
+        id: get_description
         run: | 
-            commit_message=$(git log -1 --pretty=%B)
-            echo "Commit message: $commit_message"
-            tag_name =$(echo "$commit_message" | grep -oP 'v[0-9]+\.[0-9]+\.[0-9]+')
-            release_name=$(echo "$commit_message" | sed -n 's/^.*: \(.*\)$/\1/p')
+          commit_description="$(git log -1 --pretty=%B | tail -n +3)"
+          echo "Commit description: $commit_description"
 
-            echo "::set-output name=tag_name::$tag_name"
-            echo "::set-output name=release_name::$release_name"
+          tag_name="$(echo "$commit_description" | grep -oP 'Tag: \Kv[0-9]+\.[0-9]+\.[0-9]+' || echo '')"
+          release_name="$(echo "$commit_description" | grep -oP 'Release Name: \K.*' || echo '')"
 
-    
+          if [ -z "$tag_name" ]; then
+            echo "Tag name not found in commit description, using default."
+            tag_name="v1.0.0"
+          fi
+
+          if [ -z "$release_name" ]; then
+            echo "Release name not found in commit description, using default."
+            release_name="Default Release Name"
+          fi
+
+          echo "Parsed tag name: $tag_name"
+          echo "Parsed release name: $release_name"
+
+          echo "::set-output name=tag_name::$tag_name"
+          echo "::set-output name=release_name::$release_name"
+
       - name: Download artifact
         id: download-artifact
         uses: dawidd6/action-download-artifact@v6
@@ -34,25 +47,28 @@ jobs:
           workflow_search: false
           workflow_conclusion: success
 
+      - name: Compress artifact directory
+        run: |
+          zip -r artifact.zip ./app-release-apk
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            tag_name: ${{ steps.get_message.outputs.tag_name }}
-            release_name: ${{ steps.get_message.outputs.release_name }}
-            body: "Automated release based on commit message."
-            draft: false
-            prerelease: false
+          tag_name: ${{ steps.get_description.outputs.tag_name }}
+          release_name: ${{ steps.get_description.outputs.release_name }}
+          body: "Automated release based on commit description."
+          draft: false
+          prerelease: false
     
-
       - name: Upload artifact to release
         uses: actions/upload-release-asset@v1
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: './app-release-apk'
-            asset_name: artifact.zip
-            asset_content_type: application/zip
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: './artifact.zip'
+          asset_name: artifact.zip
+          asset_content_type: application/zip
