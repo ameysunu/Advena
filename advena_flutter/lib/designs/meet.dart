@@ -1,24 +1,9 @@
 import 'package:advena_flutter/controllers/meet.dart';
+import 'package:advena_flutter/views/creator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-
-class MeetupWidget extends StatefulWidget {
-  const MeetupWidget({super.key});
-
-  @override
-  State<MeetupWidget> createState() => _MeetupWidgetState();
-}
-
-class _MeetupWidgetState extends State<MeetupWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [],
-    );
-  }
-}
 
 // ignore: must_be_immutable
 class MeetupListWidget extends StatefulWidget {
@@ -239,7 +224,7 @@ Future<void> showMeetup(BuildContext context, String title, String description,
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
-                    title ?? '',
+                    title,
                     style: TextStyle(
                         fontFamily: "WorkSans",
                         fontSize: 30,
@@ -285,7 +270,17 @@ Future<void> showMeetup(BuildContext context, String title, String description,
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: ElevatedButton(
-                        onPressed: () async {},
+                        onPressed: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                  body: SafeArea(
+                                      child: Creator(
+                                          isDay: true, userId: creator))),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: HexColor('#FF693E'),
                           shape: RoundedRectangleBorder(
